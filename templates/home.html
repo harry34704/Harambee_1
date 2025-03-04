@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-center py-5" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'); background-size: cover; background-position: center; min-height: 500px;">
+    <div class="container">
+        <h1 class="display-4 text-white mb-4">Welcome to Harambee Accommodation</h1>
+        <p class="lead text-white mb-4">Modern, secure, and comfortable student accommodation solutions</p>
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Apply Now</a>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-bed fa-3x mb-3 text-primary"></i>
+                    <h3>Modern Rooms</h3>
+                    <p>Fully furnished rooms with study space and storage</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-wifi fa-3x mb-3 text-primary"></i>
+                    <h3>Fast WiFi</h3>
+                    <p>High-speed internet access in all rooms</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-shield-alt fa-3x mb-3 text-primary"></i>
+                    <h3>24/7 Security</h3>
+                    <p>Secure access control and CCTV surveillance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <h2 class="text-center mb-5">Available Room Types</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="room-card">
+                <h4>Single Room</h4>
+                <p>Perfect for individual students who value privacy</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i>Private bathroom</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Study desk</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Single bed</li>
+                </ul>
+                <a href="{{ url_for('accommodation') }}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="room-card">
+                <h4>Double Room</h4>
+                <p>Shared accommodation for a more social experience</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i>Shared bathroom</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Two study desks</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Two single beds</li>
+                </ul>
+                <a href="{{ url_for('accommodation') }}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="room-card">
+                <h4>Premium Room</h4>
+                <p>Luxury accommodation with extra amenities</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i>En-suite bathroom</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Kitchenette</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Double bed</li>
+                </ul>
+                <a href="{{ url_for('accommodation') }}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

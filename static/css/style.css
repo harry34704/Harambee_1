@@ -1,0 +1,95 @@
+:root {
+    --dark-bg: #1a1a1a;
+    --darker-bg: #121212;
+    --primary: #007bff;
+    --secondary: #6c757d;
+    --success: #28a745;
+    --danger: #dc3545;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+.navbar {
+    background-color: var(--darker-bg) !important;
+    padding: 1rem 2rem;
+}
+
+.navbar-brand {
+    color: var(--primary) !important;
+    font-weight: 700;
+}
+
+.card {
+    background-color: var(--darker-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.form-control {
+    background-color: var(--dark-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.form-control:focus {
+    background-color: var(--dark-bg);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border: none;
+}
+
+.gallery-img {
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.gallery-img:hover {
+    transform: scale(1.05);
+}
+
+.maintenance-request {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.room-card {
+    background-color: var(--darker-bg);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+}
+
+.status-pending {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-approved {
+    background-color: var(--success);
+}
+
+.status-rejected {
+    background-color: var(--danger);
+}

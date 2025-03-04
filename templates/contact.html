@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-md-8 mx-auto text-center">
+            <h2 class="display-4 mb-4">Contact Us</h2>
+            <p class="lead">Get in touch with our team for any inquiries about our accommodation</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="mb-4">Send us a Message</h3>
+                    <form id="contactForm" method="POST" action="{{ url_for('contact') }}">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="mb-4">Contact Information</h3>
+                    <div class="mb-4">
+                        <h5><i class="fas fa-map-marker-alt text-primary me-2"></i>Address</h5>
+                        <p class="ms-4">123 Student Street<br>Braamfontein<br>Johannesburg, 2001</p>
+                    </div>
+                    <div class="mb-4">
+                        <h5><i class="fas fa-phone text-primary me-2"></i>Phone Numbers</h5>
+                        <p class="ms-4">
+                            Main Office: +27 11 234 5678<br>
+                            Security: +27 11 234 5679<br>
+                            Maintenance: +27 11 234 5680
+                        </p>
+                    </div>
+                    <div class="mb-4">
+                        <h5><i class="fas fa-envelope text-primary me-2"></i>Email Addresses</h5>
+                        <p class="ms-4">
+                            General Inquiries: info@harambee.com<br>
+                            Applications: apply@harambee.com<br>
+                            Maintenance: maintenance@harambee.com
+                        </p>
+                    </div>
+                    <div class="mb-4">
+                        <h5><i class="fas fa-clock text-primary me-2"></i>Office Hours</h5>
+                        <p class="ms-4">
+                            Monday - Friday: 08:00 - 17:00<br>
+                            Saturday: 09:00 - 13:00<br>
+                            Sunday: Closed
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="mb-4">Location</h3>
+                    <div class="ratio ratio-16x9">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3578.0441736013647!2d28.0373884!3d-26.1925399!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e950c68f0406a51%3A0x238ac9d9b1d34041!2sBraamfontein%2C%20Johannesburg%2C%202001!5e0!3m2!1sen!2sza!4v1635789654321!5m2!1sen!2sza"
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

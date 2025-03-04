@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Student Registration</h2>
+                    <form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="guardian_name" class="form-label">Guardian Name</label>
+                                <input type="text" class="form-control" id="guardian_name" name="guardian_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="guardian_phone" class="form-label">Guardian Phone</label>
+                                <input type="tel" class="form-control" id="guardian_phone" name="guardian_phone" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_document" class="form-label">ID Document</label>
+                                <input type="file" class="form-control" id="id_document" name="id_document" accept=".pdf,.jpg,.jpeg,.png" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="parent_id" class="form-label">Parent/Guardian ID</label>
+                                <input type="file" class="form-control" id="parent_id" name="parent_id" accept=".pdf,.jpg,.jpeg,.png" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="payslip" class="form-label">Latest Payslip</label>
+                                <input type="file" class="form-control" id="payslip" name="payslip" accept=".pdf,.jpg,.jpeg,.png" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bank_statement" class="form-label">Bank Statement</label>
+                                <input type="file" class="form-control" id="bank_statement" name="bank_statement" accept=".pdf,.jpg,.jpeg,.png" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

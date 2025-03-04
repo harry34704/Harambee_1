@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                    </div>
+                    <h4 class="text-center">{{ student.name }}</h4>
+                    <p class="text-center">
+                        <span class="badge status-{{ student.status }}">{{ student.status.title() }}</span>
+                    </p>
+                    <hr>
+                    <p><i class="fas fa-envelope me-2"></i> {{ student.user.email }}</p>
+                    <p><i class="fas fa-phone me-2"></i> {{ student.phone }}</p>
+                    {% if student.room_number %}
+                    <p><i class="fas fa-door-open me-2"></i> Room {{ student.room_number }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Guardian Information</h5>
+                    <p><i class="fas fa-user me-2"></i> {{ student.guardian_name }}</p>
+                    <p><i class="fas fa-phone me-2"></i> {{ student.guardian_phone }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            {% if student.status == 'pending' %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> Your application is under review. We'll notify you once it's processed.
+            </div>
+            {% endif %}
+
+            {% if student.status == 'approved' and student.room_number %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Maintenance Request</h5>
+                    <form id="maintenanceForm" method="POST" action="{{ url_for('maintenance_request') }}">
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description of Issue</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5>Recent Maintenance Requests</h5>
+                    {% for request in student.maintenance_requests %}
+                    <div class="maintenance-request">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="mb-1">{{ request.description }}</p>
+                            <span class="badge status-{{ request.status }}">{{ request.status.replace('_', ' ').title() }}</span>
+                        </div>
+                        <small class="text-muted">Submitted: {{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if student.lease_agreements %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5>Lease Agreements</h5>
+                    <div class="list-group">
+                        {% for lease in student.lease_agreements %}
+                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Lease Agreement - Room {{ lease.room_number }}</h6>
+                                <small>{{ lease.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <p class="mb-1">Valid from {{ lease.start_date }} to {{ lease.end_date }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

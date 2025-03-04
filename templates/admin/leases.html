@@ -1,0 +1,209 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Lease Agreements</h2>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="leasesTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="signed-tab" data-bs-toggle="tab" data-bs-target="#signed" type="button" role="tab">Signed</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab">Payment Pending</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">Active</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">All</button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="leasesTabContent">
+                <!-- Signed Leases -->
+                <div class="tab-pane fade show active" id="signed" role="tabpanel" aria-labelledby="signed-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Room</th>
+                                    <th>Period</th>
+                                    <th>Signed Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lease in leases %}
+                                {% if lease.status == "signed" %}
+                                <tr>
+                                    <td>
+                                        {% set student = lease.student %}
+                                        <a href="{{ url_for('admin_view_student', student_id=student.id) }}">{{ student.name }}</a>
+                                    </td>
+                                    <td>{{ lease.room_number }}</td>
+                                    <td>{{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ lease.signature_date.strftime('%Y-%m-%d %H:%M') if lease.signature_date else 'Pending' }}</td>
+                                    <td>
+                                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download"></i> Lease
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Payment Pending Leases -->
+                <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Room</th>
+                                    <th>Period</th>
+                                    <th>Payment Proof</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lease in leases %}
+                                {% if lease.status == "payment_pending" %}
+                                <tr>
+                                    <td>
+                                        {% set student = lease.student %}
+                                        <a href="{{ url_for('admin_view_student', student_id=student.id) }}">{{ student.name }}</a>
+                                    </td>
+                                    <td>{{ lease.room_number }}</td>
+                                    <td>{{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if lease.payment_proof %}
+                                        <a href="{{ url_for('view_document', student_id=lease.student_id, doc_type='payment_proof') }}" target="_blank">View Payment Proof</a>
+                                        {% else %}
+                                        Not uploaded
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('verify_payment', lease_id=lease.id) }}" class="d-inline">
+                                            <input type="hidden" name="action" value="approve">
+                                            <button type="submit" class="btn btn-sm btn-success">Verify Payment</button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('verify_payment', lease_id=lease.id) }}" class="d-inline ms-2">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Active Leases -->
+                <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Room</th>
+                                    <th>Period</th>
+                                    <th>Documents</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lease in leases %}
+                                {% if lease.status == "active" %}
+                                <tr>
+                                    <td>
+                                        {% set student = lease.student %}
+                                        <a href="{{ url_for('admin_view_student', student_id=student.id) }}">{{ student.name }}</a>
+                                    </td>
+                                    <td>{{ lease.room_number }}</td>
+                                    <td>{{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download"></i> Lease
+                                        </a>
+                                        {% if lease.invoice_file %}
+                                        <a href="{{ url_for('download_invoice', lease_id=lease.id) }}" class="btn btn-sm btn-outline-success ms-2">
+                                            <i class="fas fa-file-invoice"></i> Invoice
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- All Leases -->
+                <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Room</th>
+                                    <th>Period</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lease in leases %}
+                                <tr>
+                                    <td>
+                                        {% set student = lease.student %}
+                                        <a href="{{ url_for('admin_view_student', student_id=student.id) }}">{{ student.name }}</a>
+                                    </td>
+                                    <td>{{ lease.room_number }}</td>
+                                    <td>{{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if lease.status == "pending" %}
+                                        <span class="badge bg-secondary">Pending</span>
+                                        {% elif lease.status == "signed" %}
+                                        <span class="badge bg-primary">Signed</span>
+                                        {% elif lease.status == "payment_pending" %}
+                                        <span class="badge bg-warning">Payment Pending</span>
+                                        {% elif lease.status == "active" %}
+                                        <span class="badge bg-success">Active</span>
+                                        {% elif lease.status == "completed" %}
+                                        <span class="badge bg-dark">Completed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if lease.pdf_file %}
+                                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download"></i> Lease
+                                        </a>
+                                        {% endif %}
+                                        {% if lease.invoice_file %}
+                                        <a href="{{ url_for('download_invoice', lease_id=lease.id) }}" class="btn btn-sm btn-outline-success ms-2">
+                                            <i class="fas fa-file-invoice"></i> Invoice
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

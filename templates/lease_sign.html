@@ -1,0 +1,69 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Lease Agreement - Room {{ lease.room_number }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p><strong>Student:</strong> {{ student.name }}</p>
+                        <p><strong>Room:</strong> {{ lease.room_number }}</p>
+                        <p><strong>Period:</strong> {{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</p>
+                        <p><strong>Monthly Rent:</strong> R{{ room.price }}</p>
+                    </div>
+
+                    <h5 class="mt-4 mb-3">Terms and Conditions</h5>
+                    <div class="border p-3 mb-4" style="height: 300px; overflow-y: auto;">
+                        <h6>1. PREMISES</h6>
+                        <p>Harambee Student Living hereby agrees to rent to Student, and Student hereby agrees to rent from Harambee Student Living, the above-described premises for the stated period.</p>
+                        
+                        <h6>2. PAYMENT</h6>
+                        <p>Rent is due on the 1st of each month. Payment details will be provided upon signing this agreement. A late fee of R500 will be applied for payments received after the 5th of the month.</p>
+                        
+                        <h6>3. SECURITY DEPOSIT</h6>
+                        <p>A security deposit equal to one month's rent is required before move-in and will be refunded within 30 days of move-out, less any deductions for damages.</p>
+                        
+                        <h6>4. UTILITIES</h6>
+                        <p>Basic water and electricity are included in the rent. Excessive usage may result in additional charges.</p>
+                        
+                        <h6>5. MAINTENANCE</h6>
+                        <p>Student agrees to maintain the premises in good condition and report any maintenance issues promptly through the accommodation portal.</p>
+                        
+                        <h6>6. RULES AND REGULATIONS</h6>
+                        <p>Student agrees to comply with all rules and regulations as provided in the Student Handbook, which is incorporated into this agreement by reference.</p>
+                        
+                        <h6>7. TERMINATION</h6>
+                        <p>A 30-day written notice is required for termination of this agreement. Early termination may result in forfeiture of the security deposit.</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('sign_lease', lease_id=lease.id) }}">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agree" name="agree" required>
+                                <label class="form-check-label" for="agree">
+                                    I have read and agree to the terms and conditions above
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="signature" class="form-label">Electronic Signature (Type your full name)</label>
+                            <input type="text" class="form-control" id="signature" name="signature" required>
+                            <small class="text-muted">By typing your name above, you are signing this agreement electronically.</small>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Sign Lease Agreement</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

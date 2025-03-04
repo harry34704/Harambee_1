@@ -1,0 +1,78 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-bold text-primary">Harambee Student Living</h2>
+                        <p class="text-muted">123 University Avenue, Johannesburg, South Africa</p>
+                    </div>
+
+                    <div class="row mb-5">
+                        <div class="col-md-6">
+                            <h5 class="text-uppercase text-muted">Invoice To:</h5>
+                            <p class="mb-1 fw-bold">{{ student.name }}</p>
+                            <p class="mb-1">Room {{ lease.room_number }}</p>
+                            <p class="mb-1">{{ student.email }}</p>
+                            <p>{{ student.phone }}</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h5 class="text-uppercase text-muted">Invoice Details:</h5>
+                            <p class="mb-1"><strong>Invoice #:</strong> INV-{{ lease.id }}-{{ lease.created_at.strftime('%Y%m%d') }}</p>
+                            <p class="mb-1"><strong>Date:</strong> {{ now.strftime('%Y-%m-%d') }}</p>
+                            <p><strong>Status:</strong> <span class="badge bg-success">Paid</span></p>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mb-5">
+                        <table class="table table-bordered">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Accommodation Fee - Room {{ lease.room_number }} (First Month)</td>
+                                    <td class="text-end">R{{ room.price }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Security Deposit</td>
+                                    <td class="text-end">R{{ room.price }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end fw-bold">Total</td>
+                                    <td class="text-end fw-bold">R{{ room.price * 2 }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row mb-5">
+                        <div class="col-md-8">
+                            <h6 class="fw-bold">Payment Method</h6>
+                            <p>Bank Transfer to Standard Bank<br>
+                            Account: 123456789<br>
+                            Reference: STU{{ student.id }}</p>
+                            
+                            <h6 class="fw-bold mt-4">Terms & Conditions</h6>
+                            <p class="small text-muted">This invoice confirms your payment has been received and your accommodation has been secured for the specified period. Please refer to your signed lease agreement for all terms and conditions regarding your stay.</p>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{{ url_for('download_invoice', lease_id=lease.id) }}" class="btn btn-primary">
+                            <i class="fas fa-download me-2"></i> Download Invoice
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

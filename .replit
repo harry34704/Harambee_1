@@ -7,6 +7,9 @@ channel = "stable-24_05"
 deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 
+[env]
+REPLIT_PYTHON_PACKAGE_LAYER = "1"
+
 [workflows]
 runButton = "Project"
 

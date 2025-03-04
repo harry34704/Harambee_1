@@ -4,6 +4,12 @@
 <div class="container py-5">
     <h2 class="text-center mb-5">Available Accommodation</h2>
 
+    {% if current_user.is_authenticated and not current_user.is_admin %}
+    <div class="text-center mb-4">
+        <a href="{{ url_for('apply') }}" class="btn btn-primary btn-lg">Apply for Accommodation</a>
+    </div>
+    {% endif %}
+
     <div class="row">
         {% for room in rooms %}
         <div class="col-md-4 mb-4">
@@ -15,10 +21,14 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="h5 mb-0">R{{ room.price }}/month</span>
                         {% if room.is_available %}
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookingModal" 
-                                data-room-id="{{ room.id }}" data-room-number="{{ room.room_number }}">
-                            Book Now
-                        </button>
+                            {% if current_user.is_authenticated and not current_user.is_admin %}
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookingModal" 
+                                    data-room-id="{{ room.id }}" data-room-number="{{ room.room_number }}">
+                                Book Now
+                            </button>
+                            {% else %}
+                            <span class="text-muted">Login to Book</span>
+                            {% endif %}
                         {% else %}
                         <span class="badge bg-danger">Occupied</span>
                         {% endif %}

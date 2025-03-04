@@ -3,6 +3,7 @@ import shutil
 from flask import Flask, flash, redirect, render_template, request, url_for, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
@@ -15,14 +16,36 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "your-secret-key")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///harambee.db"
+app.secret_key = os.environ.get("SESSION_SECRET")
+
+# Configure the PostgreSQL database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
 app.config["UPLOAD_FOLDER"] = "uploads"
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max file size
 
-# Create static/attached_assets directory if it doesn't exist
+# Initialize extensions
+db.init_app(app)
+migrate = Migrate(app, db)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+# Initialize API clients
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+twilio_client = Client(
+    os.environ.get("TWILIO_ACCOUNT_SID"),
+    os.environ.get("TWILIO_AUTH_TOKEN")
+)
+
+# Create necessary directories
 static_assets_dir = os.path.join('static', 'attached_assets')
 os.makedirs(static_assets_dir, exist_ok=True)
+os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "documents"), exist_ok=True)
 
 # Copy images from attached_assets to static/attached_assets
 source_dir = 'attached_assets'
@@ -31,19 +54,6 @@ for image in ['pi4.jpg', 'pi5.jpg', 'pi6.jpg', 'pi7.jpg', 'pic1.jpg', 'pic2.jpg'
     destination = os.path.join(static_assets_dir, image.replace(' ', '_'))
     if os.path.exists(source):
         shutil.copy2(source, destination)
-
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"
-
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-twilio_client = Client(
-    os.environ.get("TWILIO_ACCOUNT_SID"),
-    os.environ.get("TWILIO_AUTH_TOKEN")
-)
-
-db.init_app(app)
 
 from models import User, Student, Admin, Accommodation, LeaseAgreement, MaintenanceRequest
 
@@ -235,8 +245,7 @@ def view_document(student_id, doc_type):
     flash("Document not found.", "danger")
     return redirect(url_for("admin_applications"))
 
-# Create necessary directories
-os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "documents"), exist_ok=True)
+# Create necessary directories (moved here for better order)
 
 if __name__ == "__main__":
     with app.app_context():

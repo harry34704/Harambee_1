@@ -22,21 +22,24 @@ class Student(db.Model):
     parent_id = db.Column(db.String(255))
     payslip = db.Column(db.String(255))
     bank_statement = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref='student', uselist=False)
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref='admin', uselist=False)
 
 class Accommodation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     room_number = db.Column(db.String(10), unique=True, nullable=False)
     room_type = db.Column(db.String(50))  # single, double, etc.
-    price = db.Column(db.Float, nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False)  # Using Numeric for currency
     is_available = db.Column(db.Boolean, default=True)
     details = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class LeaseAgreement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -55,4 +58,5 @@ class MaintenanceRequest(db.Model):
     description = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default="pending")  # pending, in_progress, completed
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    resolved_at = db.Column(db.DateTime)
     student = db.relationship('Student', backref='maintenance_requests')

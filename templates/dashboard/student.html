@@ -29,6 +29,20 @@
                     <p><i class="fas fa-phone me-2"></i> {{ student.guardian_phone }}</p>
                 </div>
             </div>
+
+            {% if student.room_number %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Request to Leave</h5>
+                    <p class="text-muted">Submit a request to end your lease (1-month notice required)</p>
+                    <form action="{{ url_for('request_leave') }}" method="POST">
+                        <button type="submit" class="btn btn-warning w-100" onclick="return confirm('Are you sure you want to submit a leave request? This requires a 1-month notice period.')">
+                            <i class="fas fa-door-open me-2"></i>Submit Leave Request
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         <div class="col-md-8">
@@ -42,45 +56,57 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h5>Maintenance Request</h5>
-                    <form id="maintenanceForm" method="POST" action="{{ url_for('maintenance_request') }}">
+                    <form action="{{ url_for('maintenance_request') }}" method="POST">
                         <div class="mb-3">
                             <label for="description" class="form-label">Description of Issue</label>
                             <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-tools me-2"></i>Submit Request
+                        </button>
                     </form>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-body">
                     <h5>Recent Maintenance Requests</h5>
                     {% for request in student.maintenance_requests %}
-                    <div class="maintenance-request">
+                    <div class="maintenance-request mb-3 p-3 border rounded">
                         <div class="d-flex justify-content-between align-items-center">
                             <p class="mb-1">{{ request.description }}</p>
                             <span class="badge status-{{ request.status }}">{{ request.status.replace('_', ' ').title() }}</span>
                         </div>
                         <small class="text-muted">Submitted: {{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
                     </div>
+                    {% else %}
+                    <p class="text-muted">No maintenance requests submitted yet.</p>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
             {% if student.lease_agreements %}
-            <div class="card mt-4">
+            <div class="card">
                 <div class="card-body">
                     <h5>Lease Agreements</h5>
                     <div class="list-group">
                         {% for lease in student.lease_agreements %}
-                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">Lease Agreement - Room {{ lease.room_number }}</h6>
-                                <small>{{ lease.created_at.strftime('%Y-%m-%d') }}</small>
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Room {{ lease.room_number }}</h6>
+                                    <p class="mb-1">Period: {{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</p>
+                                </div>
+                                {% if lease.pdf_file %}
+                                <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                                {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% endif %}
                             </div>
-                            <p class="mb-1">Valid from {{ lease.start_date }} to {{ lease.end_date }}</p>
-                        </a>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>

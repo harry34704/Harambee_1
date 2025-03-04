@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
-from datetime import datetime
+from datetime import datetime, timedelta
 import stripe
 from twilio.rest import Client
 
@@ -46,6 +46,8 @@ twilio_client = Client(
 static_assets_dir = os.path.join('static', 'attached_assets')
 os.makedirs(static_assets_dir, exist_ok=True)
 os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "documents"), exist_ok=True)
+os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "leases"), exist_ok=True) # added for lease agreements
+
 
 # Copy images from attached_assets to static/attached_assets
 source_dir = 'attached_assets'
@@ -251,6 +253,135 @@ def view_document(student_id, doc_type):
 
     flash("Document not found.", "danger")
     return redirect(url_for("admin_applications"))
+
+
+#NEW ROUTES FROM EDITED SNIPPET
+
+@app.route("/book_room", methods=["POST"])
+@login_required
+def book_room():
+    if not current_user.is_authenticated:
+        flash("Please login to book a room", "error")
+        return redirect(url_for("login"))
+
+    room_id = request.form.get("room_id")
+    start_date = request.form.get("start_date")
+    end_date = request.form.get("end_date")
+
+    # Validate dates
+    try:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+        if start_date < datetime.now().date():
+            flash("Start date cannot be in the past", "error")
+            return redirect(url_for("accommodation"))
+
+        if end_date <= start_date:
+            flash("End date must be after start date", "error")
+            return redirect(url_for("accommodation"))
+    except ValueError:
+        flash("Invalid date format", "error")
+        return redirect(url_for("accommodation"))
+
+    # Get the room and check availability
+    room = Accommodation.query.get_or_404(room_id)
+    if not room.is_available:
+        flash("This room is no longer available", "error")
+        return redirect(url_for("accommodation"))
+
+    # Create lease agreement
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    lease = LeaseAgreement(
+        student_id=student.id,
+        room_number=room.room_number,
+        start_date=start_date,
+        end_date=end_date
+    )
+
+    # Update room availability
+    room.is_available = False
+
+    # Save changes
+    db.session.add(lease)
+    db.session.commit()
+
+    flash("Room booked successfully! Please wait for admin approval.", "success")
+    return redirect(url_for("dashboard"))
+
+@app.route("/maintenance_request", methods=["POST"])
+@login_required
+def maintenance_request():
+    description = request.form.get("description")
+    if not description:
+        flash("Please provide a description of the issue", "error")
+        return redirect(url_for("dashboard"))
+
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    if not student or not student.room_number:
+        flash("You must be assigned to a room to submit maintenance requests", "error")
+        return redirect(url_for("dashboard"))
+
+    maintenance = MaintenanceRequest(
+        student_id=student.id,
+        room_number=student.room_number,
+        description=description
+    )
+
+    db.session.add(maintenance)
+    db.session.commit()
+
+    flash("Maintenance request submitted successfully", "success")
+    return redirect(url_for("dashboard"))
+
+@app.route("/request_leave", methods=["POST"])
+@login_required
+def request_leave():
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    if not student or not student.room_number:
+        flash("You must be assigned to a room to submit a leave request", "error")
+        return redirect(url_for("dashboard"))
+
+    # Calculate notice period
+    leave_date = datetime.now().date()
+    notice_period = leave_date + timedelta(days=30)  # 1 month notice
+
+    # Update lease agreement
+    lease = LeaseAgreement.query.filter_by(
+        student_id=student.id,
+        room_number=student.room_number
+    ).order_by(LeaseAgreement.created_at.desc()).first()
+
+    if lease:
+        lease.end_date = notice_period
+        db.session.commit()
+        flash(f"Leave request submitted. Your notice period ends on {notice_period.strftime('%Y-%m-%d')}", "success")
+    else:
+        flash("No active lease found", "error")
+
+    return redirect(url_for("dashboard"))
+
+@app.route("/download_lease/<int:lease_id>")
+@login_required
+def download_lease(lease_id):
+    lease = LeaseAgreement.query.get_or_404(lease_id)
+
+    # Verify user has access to this lease
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    if not current_user.is_admin and (not student or lease.student_id != student.id):
+        flash("Access denied", "error")
+        return redirect(url_for("dashboard"))
+
+    if not lease.pdf_file:
+        flash("No lease agreement file available", "error")
+        return redirect(url_for("dashboard"))
+
+    return send_from_directory(
+        os.path.join(app.config["UPLOAD_FOLDER"], "leases"),
+        lease.pdf_file,
+        as_attachment=True
+    )
+
 
 # Create necessary directories (moved here for better order)
 

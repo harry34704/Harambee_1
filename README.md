@@ -15,8 +15,7 @@ A Flask-based student accommodation management system with document verification
 
 - Python 3.11
 - PostgreSQL database
-- Stripe account for payments
-- Twilio account for SMS notifications
+- Twilio account for SMS notifications (optional)
 
 ## Environment Variables
 
@@ -25,11 +24,9 @@ Create a `.env` file in the root directory with the following variables:
 ```env
 DATABASE_URL=postgresql://user:password@localhost:5432/harambee
 SESSION_SECRET=your_secret_key
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_PUBLIC_KEY=your_stripe_public_key
-TWILIO_ACCOUNT_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_token
-TWILIO_PHONE_NUMBER=your_twilio_phone
+TWILIO_ACCOUNT_SID=your_twilio_sid (optional)
+TWILIO_AUTH_TOKEN=your_twilio_token (optional)
+TWILIO_PHONE_NUMBER=your_twilio_phone (optional)
 ```
 
 ## Installation

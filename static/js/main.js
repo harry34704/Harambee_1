@@ -66,8 +66,15 @@ if (bookingModal) {
 
 // Handle payment proof upload preview
 const paymentProofInput = document.getElementById('payment_proof');
+// Payment proof upload preview
 if (paymentProofInput) {
     paymentProofInput.addEventListener('change', function() {
         previewDocument(this);
     });
 }
+
+// Initialize any other necessary JavaScript functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any initialization code here
+    console.log('DOM fully loaded and parsed');
+});

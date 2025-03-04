@@ -46,17 +46,9 @@ twilio_client = Client(
 static_assets_dir = os.path.join('static', 'attached_assets')
 os.makedirs(static_assets_dir, exist_ok=True)
 os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "documents"), exist_ok=True)
-os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "leases"), exist_ok=True) # added for lease agreements
+os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "leases"), exist_ok=True)
 
-
-# Copy images from attached_assets to static/attached_assets
-source_dir = 'attached_assets'
-for image in ['pi4.jpg', 'pi5.jpg', 'pi6.jpg', 'pi7.jpg', 'pic1.jpg', 'pic2.jpg', 'pic_3.jpg']:
-    source = os.path.join(source_dir, image)
-    destination = os.path.join(static_assets_dir, image.replace(' ', '_'))
-    if os.path.exists(source):
-        shutil.copy2(source, destination)
-
+# Import models after db initialization
 from models import User, Student, Admin, Accommodation, LeaseAgreement, MaintenanceRequest
 
 @login_manager.user_loader
@@ -382,11 +374,18 @@ def download_lease(lease_id):
         as_attachment=True
     )
 
+# Copy images from attached_assets to static/attached_assets
+source_dir = 'attached_assets'
+for image in ['pi4.jpg', 'pi5.jpg', 'pi6.jpg', 'pi7.jpg', 'pic1.jpg', 'pic2.jpg', 'pic_3.jpg']:
+    source = os.path.join(source_dir, image)
+    destination = os.path.join(static_assets_dir, image.replace(' ', '_'))
+    if os.path.exists(source):
+        shutil.copy2(source, destination)
 
-# Create necessary directories (moved here for better order)
 
+# Initialize database tables
+with app.app_context():
+    db.create_all()
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(host="0.0.0.0", port=5000, debug=True)

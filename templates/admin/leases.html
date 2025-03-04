@@ -1,10 +1,9 @@
-
 {% extends "base.html" %}
 
 {% block content %}
 <div class="container py-5">
     <h2 class="mb-4">Lease Agreements</h2>
-    
+
     <div class="card shadow mb-4">
         <div class="card-header">
             <ul class="nav nav-tabs card-header-tabs" id="leasesTabs" role="tablist">
@@ -60,7 +59,7 @@
                         </table>
                     </div>
                 </div>
-                
+
                 <!-- Payment Pending Leases -->
                 <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
                     <div class="table-responsive">
@@ -86,20 +85,18 @@
                                     <td>{{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</td>
                                     <td>
                                         {% if lease.payment_proof %}
-                                        <a href="{{ url_for('view_document', student_id=lease.student_id, doc_type='payment_proof') }}" target="_blank">View Payment Proof</a>
-                                        {% else %}
-                                        Not uploaded
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <form method="POST" action="{{ url_for('verify_payment', lease_id=lease.id) }}" class="d-inline">
+                                        <a href="{{ url_for('view_payment_proof', lease_id=lease.id) }}" class="btn btn-sm btn-info mb-2" target="_blank">View Proof</a>
+                                        <form method="POST" action="{{ url_for('verify_payment', lease_id=lease.id) }}">
                                             <input type="hidden" name="action" value="approve">
                                             <button type="submit" class="btn btn-sm btn-success">Verify Payment</button>
                                         </form>
-                                        <form method="POST" action="{{ url_for('verify_payment', lease_id=lease.id) }}" class="d-inline ms-2">
+                                        <form method="POST" action="{{ url_for('verify_payment', lease_id=lease.id) }}" class="mt-1">
                                             <input type="hidden" name="action" value="reject">
                                             <button type="submit" class="btn btn-sm btn-danger">Reject</button>
                                         </form>
+                                        {% else %}
+                                        <span class="badge bg-warning">No proof uploaded</span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endif %}
@@ -108,7 +105,7 @@
                         </table>
                     </div>
                 </div>
-                
+
                 <!-- Active Leases -->
                 <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
                     <div class="table-responsive">
@@ -148,7 +145,7 @@
                         </table>
                     </div>
                 </div>
-                
+
                 <!-- All Leases -->
                 <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
                     <div class="table-responsive">

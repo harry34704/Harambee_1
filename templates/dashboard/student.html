@@ -119,16 +119,25 @@
                                     </a>
                                     {% elif lease.status == "signed" %}
                                     <a href="{{ url_for('upload_payment_proof', lease_id=lease.id) }}" class="btn btn-sm btn-success">
-                                        <i class="fas fa-upload me-1"></i> Upload Payment
+                                        <i class="fas fa-upload me-1"></i> Upload Payment Proof
                                     </a>
+                                    {% elif lease.status == "payment_pending" %}
+                                    <span class="badge bg-warning">Payment verification pending</span>
+                                    {% if lease.payment_proof %}
+                                    <a href="{{ url_for('view_payment_proof', lease_id=lease.id) }}" class="btn btn-info btn-sm">View Uploaded Proof</a>
                                     {% endif %}
-                                    
+                                    {% elif lease.status == "active" %}
+                                    <span class="badge bg-success">Active</span>
+                                    <a href="{{ url_for('view_invoice', lease_id=lease.id) }}" class="btn btn-info btn-sm">View Invoice</a>
+                                    <a href="{{ url_for('download_invoice', lease_id=lease.id) }}" class="btn btn-secondary btn-sm">Download Invoice</a>
+                                    {% endif %}
+
                                     {% if lease.pdf_file %}
                                     <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-download me-1"></i> Lease
                                     </a>
                                     {% endif %}
-                                    
+
                                     {% if lease.invoice_file %}
                                     <a href="{{ url_for('view_invoice', lease_id=lease.id) }}" class="btn btn-sm btn-outline-success">
                                         <i class="fas fa-file-invoice me-1"></i> Invoice

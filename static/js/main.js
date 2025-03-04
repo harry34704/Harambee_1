@@ -36,7 +36,6 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
 });
 
-// Handle document upload preview
 function previewDocument(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -59,34 +58,16 @@ if (bookingModal) {
         const roomNumber = button.getAttribute('data-room-number');
         const modalTitle = bookingModal.querySelector('.modal-title');
         const roomInput = bookingModal.querySelector('#roomNumber');
-        
+
         modalTitle.textContent = `Book Room ${roomNumber}`;
         roomInput.value = roomId;
     });
 }
 
-// Handle stripe payment
-let stripe = Stripe(STRIPE_PUBLIC_KEY);
-const paymentForm = document.getElementById('payment-form');
-if (paymentForm) {
-    paymentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const response = await fetch('/create-payment-intent', {
-            method: 'POST',
-        });
-        const data = await response.json();
-        const result = await stripe.confirmCardPayment(data.clientSecret, {
-            payment_method: {
-                card: elements.getElement('card'),
-                billing_details: {
-                    name: document.getElementById('name').value,
-                }
-            }
-        });
-        if (result.error) {
-            alert(result.error.message);
-        } else {
-            window.location.href = '/payment-success';
-        }
+// Handle payment proof upload preview
+const paymentProofInput = document.getElementById('payment_proof');
+if (paymentProofInput) {
+    paymentProofInput.addEventListener('change', function() {
+        previewDocument(this);
     });
 }

@@ -8,7 +8,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
 from datetime import datetime, timedelta
-import stripe
 from twilio.rest import Client
 
 class Base(DeclarativeBase):
@@ -36,7 +35,6 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # Initialize API clients
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 twilio_client = Client(
     os.environ.get("TWILIO_ACCOUNT_SID"),
     os.environ.get("TWILIO_AUTH_TOKEN")
@@ -409,7 +407,12 @@ def upload_payment_proof(lease_id):
             return redirect(request.url)
         
         if file:
-            filename = secure_filename(f"payment_{lease.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf")
+            # Use the original file extension instead of forcing PDF
+            ext = os.path.splitext(file.filename)[1]
+            filename = secure_filename(f"payment_{lease.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}{ext}")
+            
+            # Make sure the directory exists
+            os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "payments"), exist_ok=True)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], "payments", filename))
             
             lease.payment_proof = filename
@@ -521,6 +524,26 @@ def download_invoice(lease_id):
         as_attachment=True
     )
 
+@app.route("/view_payment_proof/<int:lease_id>")
+@login_required
+def view_payment_proof(lease_id):
+    lease = LeaseAgreement.query.get_or_404(lease_id)
+    
+    # Verify access
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    if not current_user.is_admin and (not student or lease.student_id != student.id):
+        flash("Access denied", "danger")
+        return redirect(url_for("dashboard"))
+    
+    if not lease.payment_proof:
+        flash("No payment proof uploaded", "warning")
+        return redirect(url_for("dashboard"))
+    
+    return send_from_directory(
+        os.path.join(app.config["UPLOAD_FOLDER"], "payments"),
+        lease.payment_proof
+    )
+
 @app.route("/maintenance_request", methods=["POST"])
 @login_required
 def maintenance_request():
@@ -624,8 +647,7 @@ def create_admin_user():
 @app.context_processor
 def inject_context():
     return {
-        'current_user': current_user,
-        'stripe_public_key': os.environ.get('STRIPE_PUBLIC_KEY', '')
+        'current_user': current_user
     }
 
 # Initialize database tables

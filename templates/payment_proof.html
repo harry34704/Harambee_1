@@ -25,8 +25,11 @@
                     <form method="POST" action="{{ url_for('upload_payment_proof', lease_id=lease.id) }}" enctype="multipart/form-data">
                         <div class="mb-4">
                             <label for="payment_proof" class="form-label">Payment Proof</label>
-                            <input type="file" class="form-control" id="payment_proof" name="payment_proof" accept="image/png, image/jpeg, application/pdf" required>
+                            <input type="file" class="form-control" id="payment_proof" name="payment_proof" accept="image/png, image/jpeg, application/pdf" data-preview="payment_preview" required>
                             <small class="text-muted">Upload an image or PDF of your payment receipt/confirmation</small>
+                            <div class="mt-2">
+                                <img id="payment_preview" src="#" alt="Payment preview" style="max-width: 100%; max-height: 200px; display: none;" />
+                            </div>
                         </div>
                         
                         <div class="mb-4">

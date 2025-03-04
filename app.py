@@ -72,12 +72,19 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
         user = User.query.filter_by(email=email).first()
-        
+
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for("dashboard"))
         flash("Invalid credentials")
     return render_template("auth/login.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("home"))
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -86,11 +93,11 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
         phone = request.form.get("phone")
-        
+
         if User.query.filter_by(email=email).first():
             flash("Email already registered")
             return redirect(url_for("register"))
-            
+
         user = User(
             email=email,
             password=generate_password_hash(password),
@@ -101,14 +108,14 @@ def register():
             phone=phone,
             user=user
         )
-        
+
         db.session.add(user)
         db.session.add(student)
         db.session.commit()
-        
+
         login_user(user)
         return redirect(url_for("apply")) # Redirect to application form after basic registration
-        
+
     return render_template("auth/register.html")
 
 @app.route("/dashboard")
@@ -246,6 +253,7 @@ def view_document(student_id, doc_type):
     return redirect(url_for("admin_applications"))
 
 # Create necessary directories (moved here for better order)
+
 
 if __name__ == "__main__":
     with app.app_context():

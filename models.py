@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from datetime import datetime
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'users'  # Changed from default 'user' to avoid PostgreSQL keyword conflict
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
@@ -11,7 +12,7 @@ class User(UserMixin, db.Model):
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Updated foreign key reference
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20))
     guardian_name = db.Column(db.String(100))
@@ -27,7 +28,7 @@ class Student(db.Model):
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Updated foreign key reference
     name = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref='admin', uselist=False)

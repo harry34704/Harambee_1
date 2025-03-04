@@ -3,16 +3,13 @@
 {% block content %}
 <div class="container py-5">
     <h2 class="mb-4">Admin Dashboard</h2>
-    
+
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#pending">Pending Applications</a>
+            <a class="nav-link active" data-bs-toggle="tab" href="#students">Registered Students</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#approved">Approved Applications</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#rejected">Rejected Applications</a>
+            <a class="nav-link" data-bs-toggle="tab" href="#pending">Pending Applications</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="tab" href="#maintenance">Maintenance Requests</a>
@@ -20,41 +17,71 @@
     </ul>
 
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="pending">
-            {% for student in applications %}
-            {% if student.status == 'pending' %}
+        <div class="tab-pane fade show active" id="students">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Room</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in registered_students %}
+                        <tr>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.user.email }}</td>
+                            <td>{{ student.room_number or 'Not Assigned' }}</td>
+                            <td><span class="badge bg-{{ 'success' if student.status == 'approved' else 'warning' }}">{{ student.status }}</span></td>
+                            <td>
+                                <a href="{{ url_for('admin_view_student', student_id=student.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pending">
+            {% for application in pending_applications %}
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-8">
-                            <h5>{{ student.name }}</h5>
-                            <p class="mb-1"><i class="fas fa-envelope me-2"></i>{{ student.user.email }}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>{{ student.phone }}</p>
-                            <p class="mb-1"><i class="fas fa-user me-2"></i>Guardian: {{ student.guardian_name }}</p>
+                            <h5>{{ application.name }}</h5>
+                            <p class="mb-1"><i class="fas fa-envelope me-2"></i>{{ application.user.email }}</p>
+                            <p class="mb-1"><i class="fas fa-phone me-2"></i>{{ application.phone }}</p>
+                            <p class="mb-1"><i class="fas fa-user me-2"></i>Guardian: {{ application.guardian_name }}</p>
                         </div>
                         <div class="col-md-4 text-end">
-                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='id') }}" class="btn btn-sm btn-outline-primary mb-2">
+                            <a href="{{ url_for('view_document', student_id=application.id, doc_type='id') }}" class="btn btn-sm btn-outline-primary mb-2">
                                 <i class="fas fa-id-card me-1"></i>View ID
                             </a>
-                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='parent_id') }}" class="btn btn-sm btn-outline-primary mb-2">
+                            <a href="{{ url_for('view_document', student_id=application.id, doc_type='parent_id') }}" class="btn btn-sm btn-outline-primary mb-2">
                                 <i class="fas fa-id-card me-1"></i>View Parent ID
                             </a>
-                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='payslip') }}" class="btn btn-sm btn-outline-primary mb-2">
+                            <a href="{{ url_for('view_document', student_id=application.id, doc_type='payslip') }}" class="btn btn-sm btn-outline-primary mb-2">
                                 <i class="fas fa-file-invoice-dollar me-1"></i>View Payslip
                             </a>
-                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='bank_statement') }}" class="btn btn-sm btn-outline-primary mb-2">
+                            <a href="{{ url_for('view_document', student_id=application.id, doc_type='bank_statement') }}" class="btn btn-sm btn-outline-primary mb-2">
                                 <i class="fas fa-file-invoice me-1"></i>View Bank Statement
                             </a>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <form method="POST" action="{{ url_for('process_application', student_id=student.id) }}" class="d-inline">
+                        <form method="POST" action="{{ url_for('process_application', student_id=application.id) }}" class="d-inline">
                             <input type="hidden" name="action" value="approve">
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-check me-1"></i>Approve
                             </button>
                         </form>
-                        <form method="POST" action="{{ url_for('process_application', student_id=student.id) }}" class="d-inline">
+                        <form method="POST" action="{{ url_for('process_application', student_id=application.id) }}" class="d-inline">
                             <input type="hidden" name="action" value="reject">
                             <button type="submit" class="btn btn-danger">
                                 <i class="fas fa-times me-1"></i>Reject
@@ -63,16 +90,7 @@
                     </div>
                 </div>
             </div>
-            {% endif %}
             {% endfor %}
-        </div>
-
-        <div class="tab-pane fade" id="approved">
-            <!-- Similar structure for approved applications -->
-        </div>
-
-        <div class="tab-pane fade" id="rejected">
-            <!-- Similar structure for rejected applications -->
         </div>
 
         <div class="tab-pane fade" id="maintenance">

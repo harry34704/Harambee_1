@@ -116,8 +116,15 @@ def register():
 @login_required
 def dashboard():
     if current_user.is_admin:
+        registered_students = Student.query.all()
         pending_applications = Student.query.filter_by(status="pending").all()
-        return render_template("dashboard/admin.html", applications=pending_applications)
+        maintenance_requests = MaintenanceRequest.query.order_by(MaintenanceRequest.created_at.desc()).all()
+        return render_template(
+            "dashboard/admin.html",
+            registered_students=registered_students,
+            pending_applications=pending_applications,
+            maintenance_requests=maintenance_requests
+        )
     else:
         student = Student.query.filter_by(user_id=current_user.id).first()
         return render_template("dashboard/student.html", student=student)
@@ -247,7 +254,32 @@ def view_document(student_id, doc_type):
     return redirect(url_for("admin_applications"))
 
 
-#NEW ROUTES FROM EDITED SNIPPET
+@app.route("/admin/view_student/<int:student_id>")
+@login_required
+def admin_view_student(student_id):
+    if not current_user.is_admin:
+        flash("Access denied.", "danger")
+        return redirect(url_for("home"))
+
+    student = Student.query.get_or_404(student_id)
+    return render_template("admin/student_detail.html", student=student)
+
+@app.route("/update_maintenance/<int:request_id>", methods=["POST"])
+@login_required
+def update_maintenance(request_id):
+    if not current_user.is_admin:
+        flash("Access denied.", "danger")
+        return redirect(url_for("dashboard"))
+
+    maintenance = MaintenanceRequest.query.get_or_404(request_id)
+    new_status = request.form.get("status")
+    if new_status in ["pending", "in_progress", "completed"]:
+        maintenance.status = new_status
+        if new_status == "completed":
+            maintenance.resolved_at = datetime.utcnow()
+        db.session.commit()
+        flash("Maintenance request status updated.", "success")
+    return redirect(url_for("dashboard"))
 
 @app.route("/book_room", methods=["POST"])
 @login_required
@@ -383,9 +415,28 @@ for image in ['pi4.jpg', 'pi5.jpg', 'pi6.jpg', 'pi7.jpg', 'pic1.jpg', 'pic2.jpg'
         shutil.copy2(source, destination)
 
 
+def create_admin_user():
+    admin_email = "admin@harambee.com"
+    admin = User.query.filter_by(email=admin_email).first()
+    if not admin:
+        admin = User(
+            email=admin_email,
+            password=generate_password_hash("admin123"),  # Default password, should be changed
+            is_admin=True
+        )
+        admin_profile = Admin(
+            user=admin,
+            name="System Admin"
+        )
+        db.session.add(admin)
+        db.session.add(admin_profile)
+        db.session.commit()
+        print("Admin user created successfully!")
+
 # Initialize database tables
 with app.app_context():
     db.create_all()
+    create_admin_user()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

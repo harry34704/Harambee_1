@@ -389,6 +389,211 @@ def request_leave():
 
     return redirect(url_for("dashboard"))
 
+@app.route("/sign_lease/<int:lease_id>", methods=["GET", "POST"])
+@login_required
+def sign_lease(lease_id):
+    lease = LeaseAgreement.query.get_or_404(lease_id)
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    
+    # Verify user has access to this lease
+    if not student or lease.student_id != student.id:
+        flash("Access denied", "error")
+        return redirect(url_for("dashboard"))
+    
+    # Get room information
+    room = Accommodation.query.filter_by(room_number=lease.room_number).first()
+    
+    if request.method == "POST":
+        signature = request.form.get("signature")
+        agree = request.form.get("agree")
+        
+        if signature and agree:
+            # Update lease status
+            lease.status = "signed"
+            lease.signature_date = datetime.utcnow()
+            lease.signature_ip = request.remote_addr
+            
+            # Generate PDF
+            from utils.pdf_generator import generate_lease_agreement
+            lease.pdf_file = generate_lease_agreement(student, room, lease.start_date, lease.end_date)
+            
+            db.session.commit()
+            flash("Lease agreement signed successfully!", "success")
+            return redirect(url_for("payment_proof", lease_id=lease.id))
+    
+    return render_template("lease_sign.html", lease=lease, student=student, room=room)
+
+@app.route("/payment_proof/<int:lease_id>", methods=["GET", "POST"])
+@login_required
+def payment_proof(lease_id):
+    lease = LeaseAgreement.query.get_or_404(lease_id)
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    
+    # Verify user has access to this lease
+    if not student or lease.student_id != student.id:
+        flash("Access denied", "error")
+        return redirect(url_for("dashboard"))
+    
+    # Ensure lease is signed
+    if lease.status != "signed":
+        flash("You must sign the lease agreement first", "error")
+        return redirect(url_for("sign_lease", lease_id=lease.id))
+    
+    # Get room information
+    room = Accommodation.query.filter_by(room_number=lease.room_number).first()
+    
+    if request.method == "POST":
+        payment_proof = request.files.get("payment_proof")
+        payment_reference = request.form.get("payment_reference")
+        
+        if payment_proof:
+            # Save payment proof
+            filename = secure_filename(f"payment_{lease.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{payment_proof.filename.split('.')[-1]}")
+            payment_directory = os.path.join(app.config["UPLOAD_FOLDER"], "payments")
+            os.makedirs(payment_directory, exist_ok=True)
+            payment_proof.save(os.path.join(payment_directory, filename))
+            
+            # Update lease
+            lease.payment_proof = filename
+            lease.status = "pending_verification"
+            
+            db.session.commit()
+            flash("Payment proof uploaded successfully! An administrator will verify your payment.", "success")
+            return redirect(url_for("dashboard"))
+    
+    return render_template("payment_proof.html", lease=lease, student=student, room=room)
+
+@app.route("/admin/verify_payment/<int:lease_id>", methods=["POST"])
+@login_required
+def verify_payment(lease_id):
+    if not current_user.is_admin:
+        flash("Access denied", "error")
+        return redirect(url_for("dashboard"))
+    
+    lease = LeaseAgreement.query.get_or_404(lease_id)
+    action = request.form.get("action")
+    
+    if action == "verify":
+        # Get student and room information
+        student = Student.query.get(lease.student_id)
+        room = Accommodation.query.filter_by(room_number=lease.room_number).first()
+        
+        # Update lease
+        lease.payment_verified = True
+        lease.status = "active"
+        
+        # Generate invoice
+        from utils.pdf_generator import generate_invoice
+        invoice_filename = generate_invoice(student, lease, room)
+        lease.invoice_file = invoice_filename
+        
+        # Assign room to student
+        student.room_number = lease.room_number
+        
+        db.session.commit()
+        
+        # Send notification
+        try:
+            message = f"Your payment for Room {lease.room_number} has been verified. Your invoice is available in your dashboard."
+            from utils.sms import send_sms_notification
+            send_sms_notification(student.phone, message)
+        except Exception as e:
+            app.logger.error(f"SMS sending failed: {str(e)}")
+        
+        flash("Payment verified and invoice generated!", "success")
+    elif action == "reject":
+        # Update lease
+        lease.status = "payment_rejected"
+        db.session.commit()
+        
+        # Send notification
+        try:
+            student = Student.query.get(lease.student_id)
+            message = f"Your payment for Room {lease.room_number} was rejected. Please check your dashboard for details."
+            from utils.sms import send_sms_notification
+            send_sms_notification(student.phone, message)
+        except Exception as e:
+            app.logger.error(f"SMS sending failed: {str(e)}")
+        
+        flash("Payment rejected!", "warning")
+    
+    return redirect(url_for("admin_leases"))
+
+@app.route("/admin/leases")
+@login_required
+def admin_leases():
+    if not current_user.is_admin:
+        flash("Access denied", "error")
+        return redirect(url_for("dashboard"))
+    
+    pending_leases = LeaseAgreement.query.filter(LeaseAgreement.status.in_(["pending_verification"])).all()
+    active_leases = LeaseAgreement.query.filter_by(status="active").all()
+    
+    return render_template("admin/leases.html", pending_leases=pending_leases, active_leases=active_leases)
+
+@app.route("/view_payment_proof/<int:lease_id>")
+@login_required
+def view_payment_proof(lease_id):
+    lease = LeaseAgreement.query.get_or_404(lease_id)
+    
+    # Verify user has access
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    if not current_user.is_admin and (not student or lease.student_id != student.id):
+        flash("Access denied", "error")
+        return redirect(url_for("dashboard"))
+    
+    if not lease.payment_proof:
+        flash("No payment proof available", "error")
+        return redirect(url_for("dashboard"))
+    
+    return send_from_directory(
+        os.path.join(app.config["UPLOAD_FOLDER"], "payments"),
+        lease.payment_proof,
+        as_attachment=False
+    )
+
+@app.route("/download_invoice/<int:lease_id>")
+@login_required
+def download_invoice(lease_id):
+    lease = LeaseAgreement.query.get_or_404(lease_id)
+    
+    # Verify user has access
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    if not current_user.is_admin and (not student or lease.student_id != student.id):
+        flash("Access denied", "error")
+        return redirect(url_for("dashboard"))
+    
+    if not lease.invoice_file:
+        flash("No invoice available", "error")
+        return redirect(url_for("dashboard"))
+    
+    return send_from_directory(
+        os.path.join(app.config["UPLOAD_FOLDER"], "invoices"),
+        lease.invoice_file,
+        as_attachment=True
+    )
+
+@app.route("/view_invoice/<int:lease_id>")
+@login_required
+def view_invoice(lease_id):
+    lease = LeaseAgreement.query.get_or_404(lease_id)
+    
+    # Verify user has access
+    student = Student.query.filter_by(user_id=current_user.id).first()
+    if not current_user.is_admin and (not student or lease.student_id != student.id):
+        flash("Access denied", "error")
+        return redirect(url_for("dashboard"))
+    
+    if not lease.payment_verified:
+        flash("No invoice available until payment is verified", "error")
+        return redirect(url_for("dashboard"))
+    
+    # Get room information
+    room = Accommodation.query.filter_by(room_number=lease.room_number).first()
+    now = datetime.utcnow()
+    
+    return render_template("invoice.html", lease=lease, student=student, room=room, now=now)
+
 @app.route("/download_lease/<int:lease_id>")
 @login_required
 def download_lease(lease_id):

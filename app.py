@@ -437,6 +437,13 @@ def create_admin_user():
         db.session.commit()
         print("Admin user created successfully!")
 
+@app.context_processor
+def inject_context():
+    return {
+        'current_user': current_user,
+        'stripe_public_key': os.environ.get('STRIPE_PUBLIC_KEY', '')
+    }
+
 # Initialize database tables
 with app.app_context():
     db.create_all()

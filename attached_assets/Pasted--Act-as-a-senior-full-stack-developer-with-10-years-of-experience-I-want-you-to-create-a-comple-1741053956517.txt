@@ -1,0 +1,67 @@
+💡 Act as a senior full-stack developer with 10+ years of experience.
+
+I want you to create a complete, production-ready Flask application called **"Harambee Accommodation System"** with the following specifications:
+
+---
+
+✅ BACKEND:
+- Use **Flask (Python)** as the backend framework.
+- Use **SQLite** as the database with SQLAlchemy.
+- Set up models for:
+  - `Student`: name, email, password (hashed), phone, guardian info, documents (ID, parent ID, payslip, bank statement), room_number.
+  - `Admin`: email, password (hashed).
+  - `Accommodation`: room number, details, price.
+  - `LeaseAgreement`: student_id, room_number, start_date, end_date, PDF file.
+  - `MaintenanceRequest`: student_id, room_number, description, status.
+- Setup JWT or session-based authentication.
+- Use **Flask-WTF** for forms and **validators**.
+- Integrate **Twilio** for SMS notifications.
+- Integrate **ReportLab** to generate lease PDFs.
+- Configure `.env` to store sensitive keys.
+
+---
+
+✅ FRONTEND:
+- Use **Bootstrap 5** with a modern, responsive dark theme.
+- Create full-page templates:
+  - **Home Page** with a professional background image and intro text.
+  - **Dashboard** for logged-in students with their details and actions.
+  - **Accommodation Page** to view available rooms and request maintenance.
+  - **Gallery Page** with sample images of the accommodation.
+  - **About Us Page** with sample text about Harambee.
+  - **Contact Us Page** with contact details, icons, and Google Maps iframe.
+  - **Login Page** and **Register Page** with proper form validation.
+  - **Checkout Page** for Stripe payments (prepare the integration).
+- Footer with social media icons and links.
+
+---
+
+✅ FUNCTIONALITY:
+- User registration (students) with document uploads (PDF, PNG, JPG).
+- Secure login/logout.
+- Admin dashboard for approving student applications.
+- Lease agreement generation in PDF upon approval.
+- Maintenance request submissions.
+- Stripe checkout setup for accommodation payments.
+- Display notifications after actions.
+
+---
+
+✅ DEPLOYMENT:
+- Initialize a **GitHub repository**.
+- Push the entire project to GitHub as **harambee-accommodation-system**.
+- Add a `.gitignore` for Python and Replit.
+- Provide me with the GitHub link when done.
+- Ensure the app runs on Replit with a working `.replit` and `replit.nix` config.
+
+---
+
+🚀 GOAL:
+- Deliver the entire working system in one go.
+- Automatically build all required files and folders.
+- Make the system fully functional and styled.
+- Ask for my approval after each major section (frontend, backend, deployment).
+- Do not leave placeholders — create complete working code.
+- After development, deploy to GitHub automatically.
+
+Begin the project now.

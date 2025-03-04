@@ -1,0 +1,302 @@
+Launch Week 02 starts today! First stop: Railway Metal!
+
+View Details
+
+
+
+
+gentle-rebirth
+
+
+production
+Architecture
+Observability
+Logs
+Settings
+
+Trial
+
+|
+
+$ 4.90
+
+
+Share
+
+
+
+
+Activity
+
+Harambee_1
+
+Deployment crashed
+
+9 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+15 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+15 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+20 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+20 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+26 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+26 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+32 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+32 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+42 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+42 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+47 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+47 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+52 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+52 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+58 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+58 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+63 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+63 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+73 seconds ago
+
+Harambee_1
+
+Deployment restarted
+
+73 seconds ago
+
+Harambee_1
+
+Deployment successful
+
+2 mins ago
+
+
+Fetch More
+
+Harambee_1
+Deployments
+Variables
+Metrics
+Settings
+Unexposed service
+US West
+1 Replica
+
+
+
+History
+
+Harambee_1
+/
+ed72bf0
+Mar 4, 2025 9:42 AM
+
+Crashed
+
+Get Help
+
+Details
+Build Logs
+Deploy Logs
+
+Filter
+Filter logs using "", (), AND, OR, -
+
+
+
+You reached the start of the range → Mar 4, 2025 9:42 AM
+
+  File "/opt/venv/lib/python3.12/site-packages/flask_sqlalchemy/extension.py", line 355, in init_app
+
+    raise RuntimeError(
+
+RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+
+Traceback (most recent call last):
+
+  File "/app/main.py", line 1, in <module>
+
+    from app import app
+
+  File "/app/app.py", line 31, in <module>
+
+    db.init_app(app)
+
+  File "/opt/venv/lib/python3.12/site-packages/flask_sqlalchemy/extension.py", line 355, in init_app
+
+    raise RuntimeError(
+
+RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+
+Traceback (most recent call last):
+
+  File "/app/main.py", line 1, in <module>
+
+    from app import app
+
+  File "/app/app.py", line 31, in <module>
+
+    db.init_app(app)
+
+  File "/opt/venv/lib/python3.12/site-packages/flask_sqlalchemy/extension.py", line 355, in init_app
+
+    raise RuntimeError(
+
+RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+
+Traceback (most recent call last):
+
+  File "/app/main.py", line 1, in <module>
+
+    from app import app
+
+  File "/app/app.py", line 31, in <module>
+
+    db.init_app(app)
+
+  File "/opt/venv/lib/python3.12/site-packages/flask_sqlalchemy/extension.py", line 355, in init_app
+
+    raise RuntimeError(
+
+RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+
+Traceback (most recent call last):
+
+  File "/app/main.py", line 1, in <module>
+
+    from app import app
+
+  File "/app/app.py", line 31, in <module>
+
+    db.init_app(app)
+
+  File "/opt/venv/lib/python3.12/site-packages/flask_sqlalchemy/extension.py", line 355, in init_app
+
+    raise RuntimeError(
+
+RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+
+Traceback (most recent call last):
+
+  File "/app/main.py", line 1, in <module>
+
+    from app import app
+
+  File "/app/app.py", line 31, in <module>
+
+    db.init_app(app)
+
+  File "/opt/venv/lib/python3.12/site-packages/flask_sqlalchemy/extension.py", line 355, in init_app
+
+    raise RuntimeError(
+
+RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+
+Traceback (most recent call last):
+
+  File "/app/main.py", line 1, in <module>
+
+    from app import app
+
+  File "/app/app.py", line 31, in <module>
+
+    db.init_app(app)
+
+  File "/opt/venv/lib/python3.12/site-packages/flask_sqlalchemy/extension.py", line 355, in init_app
+
+    raise RuntimeError(
+
+RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+
+
+gentle-rebirth | Railway

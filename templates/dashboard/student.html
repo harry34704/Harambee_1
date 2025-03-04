@@ -97,14 +97,61 @@
                                 <div>
                                     <h6 class="mb-1">Room {{ lease.room_number }}</h6>
                                     <p class="mb-1">Period: {{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</p>
+                                    <p class="mb-1">
+                                        Status: 
+                                        {% if lease.status == 'pending' %}
+                                            <span class="badge bg-warning">Lease Pending</span>
+                                        {% elif lease.status == 'signed' %}
+                                            <span class="badge bg-info">Signed - Payment Required</span>
+                                        {% elif lease.status == 'pending_verification' %}
+                                            <span class="badge bg-primary">Payment Verification Pending</span>
+                                        {% elif lease.status == 'active' %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% elif lease.status == 'payment_rejected' %}
+                                            <span class="badge bg-danger">Payment Rejected</span>
+                                        {% endif %}
+                                    </p>
                                 </div>
-                                {% if lease.pdf_file %}
-                                <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-download me-2"></i>Download
-                                </a>
-                                {% else %}
-                                <span class="badge bg-warning">Pending</span>
-                                {% endif %}
+                                <div class="d-flex flex-column align-items-end">
+                                    {% if lease.status == 'pending' %}
+                                        <a href="{{ url_for('sign_lease', lease_id=lease.id) }}" class="btn btn-sm btn-primary mb-2">
+                                            <i class="fas fa-signature me-1"></i>Sign Lease
+                                        </a>
+                                    {% elif lease.status == 'signed' %}
+                                        <a href="{{ url_for('payment_proof', lease_id=lease.id) }}" class="btn btn-sm btn-primary mb-2">
+                                            <i class="fas fa-upload me-1"></i>Upload Payment
+                                        </a>
+                                        {% if lease.pdf_file %}
+                                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-download me-1"></i>Download Lease
+                                        </a>
+                                        {% endif %}
+                                    {% elif lease.status == 'pending_verification' %}
+                                        {% if lease.pdf_file %}
+                                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-download me-1"></i>Download Lease
+                                        </a>
+                                        {% endif %}
+                                    {% elif lease.status == 'active' %}
+                                        <a href="{{ url_for('view_invoice', lease_id=lease.id) }}" class="btn btn-sm btn-info mb-2">
+                                            <i class="fas fa-file-invoice-dollar me-1"></i>View Invoice
+                                        </a>
+                                        {% if lease.pdf_file %}
+                                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-download me-1"></i>Download Lease
+                                        </a>
+                                        {% endif %}
+                                    {% elif lease.status == 'payment_rejected' %}
+                                        <a href="{{ url_for('payment_proof', lease_id=lease.id) }}" class="btn btn-sm btn-primary mb-2">
+                                            <i class="fas fa-upload me-1"></i>Reupload Payment
+                                        </a>
+                                        {% if lease.pdf_file %}
+                                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-download me-1"></i>Download Lease
+                                        </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                         {% endfor %}

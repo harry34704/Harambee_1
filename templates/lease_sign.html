@@ -1,0 +1,71 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Lease Agreement</h2>
+                    
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Please review your lease agreement carefully before signing.
+                    </div>
+                    
+                    <div class="mb-4 lease-document p-4 border" style="max-height: 400px; overflow-y: auto; background-color: #f9f9f9;">
+                        <h4 class="text-center">HARAMBEE STUDENT ACCOMMODATION LEASE AGREEMENT</h4>
+                        <p class="mt-4"><strong>Student Name:</strong> {{ student.name }}</p>
+                        <p><strong>Room Number:</strong> {{ lease.room_number }}</p>
+                        <p><strong>Start Date:</strong> {{ lease.start_date.strftime('%Y-%m-%d') }}</p>
+                        <p><strong>End Date:</strong> {{ lease.end_date.strftime('%Y-%m-%d') }}</p>
+                        
+                        <h5 class="mt-4">Terms and Conditions:</h5>
+                        <ol>
+                            <li>Rent is due on the 1st of each month.</li>
+                            <li>A security deposit equal to one month's rent is required.</li>
+                            <li>Maintenance requests must be submitted through the portal.</li>
+                            <li>Common areas must be kept clean and tidy.</li>
+                            <li>No unauthorized guests are allowed overnight.</li>
+                            <li>Noise levels must be kept reasonable, especially between 10 PM and 7 AM.</li>
+                            <li>Smoking is not permitted inside the building.</li>
+                            <li>Pets are not allowed unless specifically authorized.</li>
+                            <li>Damage to property beyond normal wear and tear will be charged to the tenant.</li>
+                            <li>30 days' notice is required for lease termination.</li>
+                        </ol>
+                        
+                        <h5 class="mt-4">Payment Terms:</h5>
+                        <p>The monthly rent for this accommodation is R{{ room.price }}. Payment can be made via bank transfer to the following account:</p>
+                        <p>
+                            <strong>Bank:</strong> Standard Bank<br>
+                            <strong>Account Name:</strong> Harambee Student Living<br>
+                            <strong>Account Number:</strong> 123456789<br>
+                            <strong>Branch Code:</strong> 051001<br>
+                            <strong>Reference:</strong> {{ student.name }}-{{ lease.room_number }}
+                        </p>
+                    </div>
+                    
+                    <form method="POST" id="signatureForm">
+                        <div class="mb-3">
+                            <label for="signature" class="form-label">Signature (Type your full name):</label>
+                            <input type="text" class="form-control" id="signature" name="signature" required>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="agree" name="agree" required>
+                            <label class="form-check-label" for="agree">
+                                I have read, understood, and agree to the terms and conditions outlined in this lease agreement.
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Sign Agreement</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

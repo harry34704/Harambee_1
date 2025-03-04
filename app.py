@@ -401,6 +401,21 @@ def sign_lease(lease_id):
     # Get room information
     room = Accommodation.query.filter_by(room_number=lease.room_number).first()
     
+
+@app.route("/reset_db", methods=["GET"])
+def reset_db():
+    if request.args.get("key") != "dev_reset_key":  # Simple protection
+        return "Access denied", 403
+    
+    # Drop all tables and recreate them
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        create_admin_user()
+    
+    flash("Database has been reset successfully!", "success")
+    return redirect(url_for("home"))
+
     if request.method == "POST":
         signature = request.form.get("signature")
         agree = request.form.get("agree")

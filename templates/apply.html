@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Student Accommodation Application</h2>
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="guardian_name" class="form-label">Guardian Name</label>
+                                <input type="text" class="form-control" id="guardian_name" name="guardian_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="guardian_phone" class="form-label">Guardian Phone</label>
+                                <input type="tel" class="form-control" id="guardian_phone" name="guardian_phone" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Required Documents</h5>
+                            <p class="text-muted">Please upload clear, legible copies of the following documents:</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_document" class="form-label">Your ID Document</label>
+                            <input type="file" class="form-control" id="id_document" name="id_document" accept=".pdf,.jpg,.jpeg,.png" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="parent_id" class="form-label">Guardian's ID Document</label>
+                            <input type="file" class="form-control" id="parent_id" name="parent_id" accept=".pdf,.jpg,.jpeg,.png" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payslip" class="form-label">Guardian's Latest Payslip</label>
+                            <input type="file" class="form-control" id="payslip" name="payslip" accept=".pdf,.jpg,.jpeg,.png" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bank_statement" class="form-label">Guardian's Bank Statement (Last 3 months)</label>
+                            <input type="file" class="form-control" id="bank_statement" name="bank_statement" accept=".pdf,.jpg,.jpeg,.png" required>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Your application will be reviewed by our admin team. You will be notified once a decision has been made.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Submit Application</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

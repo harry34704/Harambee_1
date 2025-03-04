@@ -8,7 +8,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
 from datetime import datetime, timedelta
-import stripe
 from twilio.rest import Client
 
 class Base(DeclarativeBase):
@@ -36,7 +35,6 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # Initialize API clients
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 twilio_client = Client(
     os.environ.get("TWILIO_ACCOUNT_SID"),
     os.environ.get("TWILIO_AUTH_TOKEN")
@@ -645,8 +643,7 @@ def create_admin_user():
 @app.context_processor
 def inject_context():
     return {
-        'current_user': current_user,
-        'stripe_public_key': os.environ.get('STRIPE_PUBLIC_KEY', '')
+        'current_user': current_user
     }
 
 # Initialize database tables

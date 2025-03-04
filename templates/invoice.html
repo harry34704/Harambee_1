@@ -1,86 +1,97 @@
 
 {% extends "base.html" %}
 
+{% block title %}Invoice{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card">
-                <div class="card-body p-4" id="invoiceContent">
-                    <div class="row">
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Invoice</h4>
+                    <a href="{{ url_for('download_invoice', lease_id=lease.id) }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-download me-1"></i> Download PDF
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
                         <div class="col-md-6">
-                            <h2>INVOICE</h2>
-                            <p><strong>Invoice #:</strong> HAR-{{ lease.id }}-{{ "%05d" % student.id }}</p>
-                            <p><strong>Date:</strong> {{ lease.payment_verified_date.strftime('%Y-%m-%d') if lease.payment_verified_date else now.strftime('%Y-%m-%d') }}</p>
+                            <h5 class="text-primary">Harambee Accommodation</h5>
+                            <p class="mb-1">123 Student Street</p>
+                            <p class="mb-1">City, 2001</p>
+                            <p class="mb-1">South Africa</p>
+                            <p>Email: info@harambee.com</p>
                         </div>
-                        <div class="col-md-6 text-end">
-                            <h3>Harambee Student Living</h3>
-                            <p>123 University Avenue<br>Johannesburg, 2000<br>South Africa</p>
-                            <p>admin@harambee.com<br>+27 11 123 4567</p>
-                        </div>
-                    </div>
-                    
-                    <hr>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-6">
+                        <div class="col-md-6 text-md-end">
                             <h5>Bill To:</h5>
-                            <p>{{ student.name }}<br>
-                            Room {{ lease.room_number }}<br>
-                            Harambee Student Accommodation<br>
-                            Email: {{ student.user.email }}<br>
-                            Phone: {{ student.phone }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Lease Period:</h5>
-                            <p><strong>Start Date:</strong> {{ lease.start_date.strftime('%Y-%m-%d') }}<br>
-                            <strong>End Date:</strong> {{ lease.end_date.strftime('%Y-%m-%d') }}</p>
+                            <p class="mb-1">{{ student.name }}</p>
+                            <p class="mb-1">{{ student.phone }}</p>
+                            <p>{{ current_user.email }}</p>
                         </div>
                     </div>
                     
-                    <div class="table-responsive mt-4">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <div class="mb-3">
+                                <h6 class="text-primary">Invoice Number:</h6>
+                                <p class="mb-0">INV-{{ lease.id }}-{{ now.strftime('%Y%m%d') }}</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 text-sm-end">
+                            <div class="mb-3">
+                                <h6 class="text-primary">Invoice Date:</h6>
+                                <p class="mb-0">{{ now.strftime('%d %b %Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
                                 <tr>
                                     <th>Description</th>
+                                    <th>Period</th>
                                     <th class="text-end">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>First Month Rent - Room {{ lease.room_number }}</td>
-                                    <td class="text-end">R{{ room.price }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Security Deposit (Refundable)</td>
-                                    <td class="text-end">R{{ room.price }}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="1" class="text-end"><strong>Total</strong></td>
-                                    <td class="text-end"><strong>R{{ room.price * 2 }}</strong></td>
+                                    <td>Accommodation: Room {{ room.room_number }} ({{ room.room_type }})</td>
+                                    <td>{{ lease.start_date.strftime('%d %b %Y') }} - {{ lease.end_date.strftime('%d %b %Y') }}</td>
+                                    <td class="text-end">R {{ room.price }}</td>
                                 </tr>
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="2" class="text-end">Total:</th>
+                                    <th class="text-end">R {{ room.price }}</th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                     
-                    <div class="mt-4 p-3 border bg-light">
-                        <h5>Payment Information:</h5>
-                        <p><strong>Payment Status:</strong> <span class="badge bg-success">PAID</span></p>
-                        <p><strong>Payment Date:</strong> {{ lease.payment_verified_date.strftime('%Y-%m-%d') if lease.payment_verified_date else now.strftime('%Y-%m-%d') }}</p>
-                        <p><strong>Payment Method:</strong> Bank Transfer</p>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <p class="text-center"><em>Thank you for choosing Harambee Student Living!</em></p>
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <h6 class="text-primary">Payment Information:</h6>
+                            <p class="mb-1">Payment was received via bank transfer.</p>
+                            <p class="mb-3">Reference: HAR{{ student.id }}-{{ room.room_number }}</p>
+                            
+                            <h6 class="text-primary">Notes:</h6>
+                            <p>Thank you for choosing Harambee Accommodation. This invoice serves as proof of payment for your accommodation.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <h6 class="text-primary mb-3">Payment Status:</h6>
+                            <span class="badge bg-success p-2">PAID</span>
+                        </div>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-primary" onclick="window.print()">
-                        <i class="fas fa-print me-2"></i>Print Invoice
-                    </button>
-                    <a href="{{ url_for('download_invoice', lease_id=lease.id) }}" class="btn btn-secondary">
-                        <i class="fas fa-download me-2"></i>Download PDF
-                    </a>
+                    <div class="text-center">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

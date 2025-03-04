@@ -119,7 +119,7 @@
                                         </a>
                                     {% elif lease.status == 'signed' %}
                                         <a href="{{ url_for('payment_proof', lease_id=lease.id) }}" class="btn btn-sm btn-primary mb-2">
-                                            <i class="fas fa-upload me-1"></i>Upload Payment
+                                            <i class="fas fa-upload me-1"></i>Make Payment & Upload Proof
                                         </a>
                                         {% if lease.pdf_file %}
                                         <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-secondary">

@@ -221,8 +221,12 @@ def process_application(student_id):
         if action == "hold":
             message = "Your application is on hold. Please check your email for required documents."
 
-        from utils.sms import send_application_status
-        send_application_status(student, action)
+        try:
+            from utils.sms import send_application_status
+            send_application_status(student, action)
+        except Exception as e:
+            app.logger.error(f"SMS sending failed: {str(e)}")
+            # Continue with the process even if SMS fails
 
         flash(f"Application {action}ed successfully!", "success")
 

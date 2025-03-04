@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
 from datetime import datetime, timedelta
+import stripe
 from twilio.rest import Client
 
 class Base(DeclarativeBase):
@@ -35,6 +36,7 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # Initialize API clients
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 twilio_client = Client(
     os.environ.get("TWILIO_ACCOUNT_SID"),
     os.environ.get("TWILIO_AUTH_TOKEN")
@@ -401,21 +403,6 @@ def sign_lease(lease_id):
     # Get room information
     room = Accommodation.query.filter_by(room_number=lease.room_number).first()
     
-
-@app.route("/reset_db", methods=["GET"])
-def reset_db():
-    if request.args.get("key") != "dev_reset_key":  # Simple protection
-        return "Access denied", 403
-    
-    # Drop all tables and recreate them
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
-        create_admin_user()
-    
-    flash("Database has been reset successfully!", "success")
-    return redirect(url_for("home"))
-
     if request.method == "POST":
         signature = request.form.get("signature")
         agree = request.form.get("agree")
@@ -658,7 +645,8 @@ def create_admin_user():
 @app.context_processor
 def inject_context():
     return {
-        'current_user': current_user
+        'current_user': current_user,
+        'stripe_public_key': os.environ.get('STRIPE_PUBLIC_KEY', '')
     }
 
 # Initialize database tables

@@ -1,48 +1,46 @@
 
 {% extends "base.html" %}
 
-{% block title %}Upload Payment Proof{% endblock %}
-
 {% block content %}
 <div class="container py-5">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Upload Payment Proof</h4>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <h5><i class="fas fa-info-circle"></i> Payment Instructions</h5>
-                        <p>Please transfer the full payment amount of <strong>R{{ room.price }}</strong> to the following bank account:</p>
-                        <div class="bank-details p-3 bg-light rounded mb-3">
-                            <p><strong>Bank Name:</strong> First National Bank</p>
-                            <p><strong>Account Holder:</strong> Harambee Accommodation</p>
-                            <p><strong>Account Number:</strong> 62123456789</p>
-                            <p><strong>Branch Code:</strong> 250655</p>
-                            <p><strong>Reference:</strong> HAR{{ student.id }}-{{ room.room_number }}</p>
-                        </div>
-                        <p>After making the payment, please upload the proof of payment below.</p>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Upload Payment Proof</h2>
+                    
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Please upload proof of payment (bank transfer receipt, payment confirmation, or screenshot) to proceed with your lease agreement.
+                    </div>
+                    
+                    <div class="mb-4 payment-details p-3 border bg-light">
+                        <h5>Payment Details</h5>
+                        <p><strong>Bank:</strong> Standard Bank</p>
+                        <p><strong>Account Name:</strong> Harambee Student Living</p>
+                        <p><strong>Account Number:</strong> 123456789</p>
+                        <p><strong>Branch Code:</strong> 051001</p>
+                        <p><strong>Reference:</strong> {{ student.name }}-{{ lease.room_number }}</p>
+                        <p><strong>Amount:</strong> R{{ room.price }} (includes first month rent and security deposit)</p>
                     </div>
                     
                     <form method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label for="payment_reference" class="form-label">Payment Reference</label>
-                            <input type="text" class="form-control" id="payment_reference" name="payment_reference" required 
-                                   placeholder="e.g., HAR{{ student.id }}-{{ room.room_number }}" value="HAR{{ student.id }}-{{ room.room_number }}">
-                            <div class="form-text">Enter the reference you used for the bank transfer.</div>
+                            <label for="payment_proof" class="form-label">Upload Payment Proof (PDF, JPG, PNG)</label>
+                            <input type="file" class="form-control" id="payment_proof" name="payment_proof" accept=".pdf,.jpg,.jpeg,.png" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="payment_proof" class="form-label">Proof of Payment</label>
-                            <input type="file" class="form-control" id="payment_proof" name="payment_proof" required accept="image/*, application/pdf">
-                            <div class="form-text">Upload your proof of payment (screenshot, PDF, or image).</div>
+                            <label for="payment_reference" class="form-label">Payment Reference Used</label>
+                            <input type="text" class="form-control" id="payment_reference" name="payment_reference" placeholder="Enter the reference you used for the payment" required>
                         </div>
                         
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Upload Payment Proof</button>
-                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                        <div class="mb-3">
+                            <label for="payment_date" class="form-label">Payment Date</label>
+                            <input type="date" class="form-control" id="payment_date" name="payment_date" required>
                         </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Submit Payment Proof</button>
                     </form>
                 </div>
             </div>

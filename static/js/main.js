@@ -59,10 +59,34 @@ if (bookingModal) {
         const roomNumber = button.getAttribute('data-room-number');
         const modalTitle = bookingModal.querySelector('.modal-title');
         const roomInput = bookingModal.querySelector('#roomNumber');
-
+        
         modalTitle.textContent = `Book Room ${roomNumber}`;
         roomInput.value = roomId;
     });
 }
 
-//Removed Stripe Payment Handling code
+// Handle stripe payment
+let stripe = Stripe(STRIPE_PUBLIC_KEY);
+const paymentForm = document.getElementById('payment-form');
+if (paymentForm) {
+    paymentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const response = await fetch('/create-payment-intent', {
+            method: 'POST',
+        });
+        const data = await response.json();
+        const result = await stripe.confirmCardPayment(data.clientSecret, {
+            payment_method: {
+                card: elements.getElement('card'),
+                billing_details: {
+                    name: document.getElementById('name').value,
+                }
+            }
+        });
+        if (result.error) {
+            alert(result.error.message);
+        } else {
+            window.location.href = '/payment-success';
+        }
+    });
+}

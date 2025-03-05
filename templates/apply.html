@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block content %}
@@ -8,6 +9,47 @@
                 <div class="card-body p-4">
                     <h2 class="text-center mb-4">Student Accommodation Application</h2>
                     <form method="POST" enctype="multipart/form-data">
+                        <h4 class="mb-4">Academic Information</h4>
+                        <div class="mb-3">
+                            <label for="institution" class="form-label">Institution</label>
+                            <select class="form-select" id="institution" name="institution" required>
+                                <option value="">Select Institution</option>
+                                <option value="Highlands College">Highlands College</option>
+                                <option value="Other Institution">Other Institution</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="campus" class="form-label">Campus</label>
+                            <input type="text" class="form-control" id="campus" name="campus" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="course" class="form-label">Course</label>
+                            <input type="text" class="form-control" id="course" name="course" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="year_of_study" class="form-label">Year of Study</label>
+                            <select class="form-select" id="year_of_study" name="year_of_study" required>
+                                <option value="">Select Year</option>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                                <option value="5th Year">5th Year</option>
+                                <option value="Postgraduate">Postgraduate</option>
+                            </select>
+                        </div>
+
+                        <h4 class="mb-4">Accommodation Preference</h4>
+                        <div class="mb-3">
+                            <label for="accommodation_preference" class="form-label">Select Preferred Accommodation</label>
+                            <select class="form-select" id="accommodation_preference" name="accommodation_preference" required>
+                                <option value="">Select Accommodation</option>
+                                {% for room in accommodations %}
+                                <option value="{{ room.id }}">{{ room.room_type }} - Room {{ room.room_number }} (R{{ room.price }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
                         <h4 class="mb-4">Guardian Information</h4>
                         <div class="mb-3">
                             <label for="guardian_name" class="form-label">Guardian Full Name</label>
@@ -46,8 +88,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="payslip" class="form-label">Guardian's Latest Payslip</label>
-                            <input type="file" class="form-control" id="payslip" name="payslip" accept=".pdf,.jpg,.jpeg,.png" required>
+                            <label for="proof_of_registration" class="form-label">Proof of Registration</label>
+                            <input type="file" class="form-control" id="proof_of_registration" name="proof_of_registration" accept=".pdf,.jpg,.jpeg,.png" required>
                         </div>
 
                         <div class="mb-3">

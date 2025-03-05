@@ -1,101 +1,199 @@
+
 {% extends "base.html" %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row">
-        <div class="col-12 mb-4">
-            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        <div class="col-md-12 mb-4">
+            <a href="{{ url_for('admin_applications') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Applications
             </a>
         </div>
-        
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h4 class="card-title">{{ student.name }}</h4>
-                    <p class="mb-1"><i class="fas fa-envelope me-2"></i>{{ student.user.email }}</p>
-                    <p class="mb-1"><i class="fas fa-phone me-2"></i>{{ student.phone }}</p>
-                    {% if student.room_number %}
-                    <p class="mb-1"><i class="fas fa-door-open me-2"></i>Room {{ student.room_number }}</p>
-                    {% endif %}
-                    <p class="mb-1">
-                        <i class="fas fa-info-circle me-2"></i>Status: 
-                        <span class="badge bg-{{ 'success' if student.status == 'approved' else 'warning' }}">
-                            {{ student.status }}
-                        </span>
-                    </p>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Student Details: {{ student.name }}</h4>
                 </div>
-            </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Personal Information</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Full Name</th>
+                                    <td>{{ student.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ID Number</th>
+                                    <td>{{ student.id_number }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Student Number</th>
+                                    <td>{{ student.student_number }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>{{ student.user.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>{{ student.phone }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td>
+                                        <span class="badge 
+                                            {% if student.status == 'approved' %}bg-success
+                                            {% elif student.status == 'rejected' %}bg-danger
+                                            {% elif student.status == 'partial_approved' %}bg-info
+                                            {% else %}bg-warning{% endif %}">
+                                            {{ student.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Application Date</th>
+                                    <td>{{ student.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                            </table>
+                        </div>
 
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5>Guardian Information</h5>
-                    <p class="mb-1"><i class="fas fa-user me-2"></i>{{ student.guardian_name }}</p>
-                    <p class="mb-1"><i class="fas fa-phone me-2"></i>{{ student.guardian_phone }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Documents</h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group">
-                        {% if student.id_document %}
-                        <a href="{{ url_for('view_document', student_id=student.id, doc_type='id') }}" 
-                           class="list-group-item list-group-item-action" target="_blank">
-                            <i class="fas fa-id-card me-2"></i>ID Document
-                        </a>
-                        {% endif %}
-                        
-                        {% if student.parent_id %}
-                        <a href="{{ url_for('view_document', student_id=student.id, doc_type='parent_id') }}" 
-                           class="list-group-item list-group-item-action" target="_blank">
-                            <i class="fas fa-id-card me-2"></i>Guardian ID
-                        </a>
-                        {% endif %}
-                        
-                        {% if student.payslip %}
-                        <a href="{{ url_for('view_document', student_id=student.id, doc_type='payslip') }}" 
-                           class="list-group-item list-group-item-action" target="_blank">
-                            <i class="fas fa-file-invoice-dollar me-2"></i>Payslip
-                        </a>
-                        {% endif %}
-                        
-                        {% if student.bank_statement %}
-                        <a href="{{ url_for('view_document', student_id=student.id, doc_type='bank_statement') }}" 
-                           class="list-group-item list-group-item-action" target="_blank">
-                            <i class="fas fa-file-invoice me-2"></i>Bank Statement
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            {% if student.maintenance_requests %}
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Maintenance History</h5>
-                </div>
-                <div class="card-body">
-                    {% for request in student.maintenance_requests %}
-                    <div class="maintenance-request mb-3 p-3 border rounded">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">{{ request.description }}</h6>
-                                <small class="text-muted">Submitted: {{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                            </div>
-                            <span class="badge bg-{{ 'success' if request.status == 'completed' else 'warning' }}">
-                                {{ request.status }}
-                            </span>
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Academic Information</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Institution</th>
+                                    <td>{{ student.institution }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Campus</th>
+                                    <td>{{ student.campus }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Course</th>
+                                    <td>{{ student.course }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Year of Study</th>
+                                    <td>{{ student.year_of_study }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Preferred Accommodation</th>
+                                    <td>
+                                        {% if student.preferred_accommodation %}
+                                            {{ student.preferred_accommodation.room_type }} - Room {{ student.preferred_accommodation.room_number }}
+                                        {% else %}
+                                            Not specified
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
-                    {% endfor %}
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Guardian Information</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Guardian Name</th>
+                                    <td>{{ student.guardian_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Guardian Phone</th>
+                                    <td>{{ student.guardian_phone }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Guardian ID Number</th>
+                                    <td>{{ student.guardian_id_number }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Guardian Address</th>
+                                    <td>{{ student.guardian_street_address }}, {{ student.guardian_city }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Uploaded Documents</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>ID Document</th>
+                                    <td>
+                                        {% if student.id_document %}
+                                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='id') }}" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-alt me-1"></i>View
+                                            </a>
+                                        {% else %}
+                                            Not uploaded
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Guardian ID</th>
+                                    <td>
+                                        {% if student.parent_id %}
+                                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='parent_id') }}" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-alt me-1"></i>View
+                                            </a>
+                                        {% else %}
+                                            Not uploaded
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Proof of Registration</th>
+                                    <td>
+                                        {% if student.proof_of_registration %}
+                                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='proof_of_registration') }}" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-alt me-1"></i>View
+                                            </a>
+                                        {% else %}
+                                            Not uploaded
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Bank Statement</th>
+                                    <td>
+                                        {% if student.bank_statement %}
+                                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='bank_statement') }}" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-alt me-1"></i>View
+                                            </a>
+                                        {% else %}
+                                            Not uploaded
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>Application Actions</h5>
+                        <form action="{{ url_for('process_application', student_id=student.id) }}" method="POST" class="d-inline">
+                            <input type="hidden" name="action" value="partial_approve">
+                            <button type="submit" class="btn btn-success me-2">
+                                <i class="fas fa-check me-1"></i>Approve & Request Lease Signing
+                            </button>
+                        </form>
+                        <form action="{{ url_for('process_application', student_id=student.id) }}" method="POST" class="d-inline">
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn-danger me-2">
+                                <i class="fas fa-times me-1"></i>Reject
+                            </button>
+                        </form>
+                        <form action="{{ url_for('process_application', student_id=student.id) }}" method="POST" class="d-inline">
+                            <input type="hidden" name="action" value="hold">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-pause me-1"></i>Hold
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
 </div>

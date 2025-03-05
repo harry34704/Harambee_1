@@ -124,6 +124,9 @@ def register_routes(app):
             email = request.form.get("email")
             password = request.form.get("password")
             phone = request.form.get("phone")
+            id_number = request.form.get("id_number")
+            student_number = request.form.get("student_number")
+            
             from models import User, Student
             if User.query.filter_by(email=email).first():
                 flash("Email already registered")
@@ -137,6 +140,8 @@ def register_routes(app):
             student = Student(
                 name=name,
                 phone=phone,
+                id_number=id_number,
+                student_number=student_number,
                 user=user
             )
 
@@ -188,8 +193,15 @@ def register_routes(app):
     @app.route("/apply", methods=["GET", "POST"])
     @login_required
     def apply():
+        from models import Accommodation, Student
+        
         if request.method == "POST":
             # Get form data
+            institution = request.form.get("institution")
+            campus = request.form.get("campus")
+            course = request.form.get("course")
+            year_of_study = request.form.get("year_of_study")
+            accommodation_preference = request.form.get("accommodation_preference")
             guardian_name = request.form.get("guardian_name")
             guardian_phone = request.form.get("guardian_phone")
             guardian_id_number = request.form.get("guardian_id_number")
@@ -199,12 +211,16 @@ def register_routes(app):
             # Get uploaded files
             id_doc = request.files.get("id_document")
             parent_id = request.files.get("parent_id")
-            payslip = request.files.get("payslip")
+            proof_of_registration = request.files.get("proof_of_registration")
             bank_statement = request.files.get("bank_statement")
 
             # Update student record
-            from models import Student
             student = Student.query.filter_by(user_id=current_user.id).first()
+            student.institution = institution
+            student.campus = campus
+            student.course = course
+            student.year_of_study = year_of_study
+            student.accommodation_preference = accommodation_preference
             student.guardian_name = guardian_name
             student.guardian_phone = guardian_phone
             student.guardian_id_number = guardian_id_number
@@ -223,10 +239,10 @@ def register_routes(app):
                 parent_id.save(os.path.join(app.config["UPLOAD_FOLDER"], "documents", filename))
                 student.parent_id = filename
 
-            if payslip:
-                filename = secure_filename(payslip.filename)
-                payslip.save(os.path.join(app.config["UPLOAD_FOLDER"], "documents", filename))
-                student.payslip = filename
+            if proof_of_registration:
+                filename = secure_filename(proof_of_registration.filename)
+                proof_of_registration.save(os.path.join(app.config["UPLOAD_FOLDER"], "documents", filename))
+                student.proof_of_registration = filename
 
             if bank_statement:
                 filename = secure_filename(bank_statement.filename)
@@ -237,7 +253,9 @@ def register_routes(app):
             flash("Application submitted successfully!", "success")
             return redirect(url_for("dashboard"))
 
-        return render_template("apply.html")
+        # Get all available accommodations for the dropdown
+        accommodations = Accommodation.query.filter_by(is_available=True).all()
+        return render_template("apply.html", accommodations=accommodations)
 
     @app.route("/admin/applications")
     @login_required
@@ -246,7 +264,8 @@ def register_routes(app):
             flash("Access denied.", "danger")
             return redirect(url_for("home"))
         from models import Student
-        applications = Student.query.filter_by(status="pending").all()
+        # Only show applications from Highlands College
+        applications = Student.query.filter_by(status="pending", institution="Highlands College").all()
         return render_template("admin/applications.html", applications=applications)
 
     @app.route("/admin/process_application/<int:student_id>", methods=["POST"])
@@ -296,8 +315,8 @@ def register_routes(app):
             document_path = student.id_document
         elif doc_type == "parent_id" and student.parent_id:
             document_path = student.parent_id
-        elif doc_type == "payslip" and student.payslip:
-            document_path = student.payslip
+        elif doc_type == "proof_of_registration" and student.proof_of_registration:
+            document_path = student.proof_of_registration
         elif doc_type == "bank_statement" and student.bank_statement:
             document_path = student.bank_statement
 

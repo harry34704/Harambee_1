@@ -326,12 +326,59 @@ def register_routes(app):
     def process_application(student_id):
         if not current_user.is_admin:
             return {"error": "Access denied"}, 403
-        from models import Student
+        from models import Student, Accommodation, LeaseAgreement
+        from datetime import datetime, timedelta
         student = Student.query.get_or_404(student_id)
         action = request.form.get("action")
 
         if action in ["approve", "reject", "hold", "partial_approve"]:
             student.status = action
+            
+            # If approved or partially approved, create a lease agreement
+            if action in ["approve", "partial_approve"]:
+                # Get the selected accommodation
+                if student.accommodation_preference:
+                    room = Accommodation.query.get(student.accommodation_preference)
+                    
+                    if room:
+                        # Create default lease dates (e.g., 1 year from now)
+                        start_date = datetime.now().date()
+                        end_date = start_date + timedelta(days=365)  # One year lease
+                        
+                        # Create the lease agreement
+                        new_lease = LeaseAgreement(
+                            student_id=student.id,
+                            room_number=room.room_number,
+                            start_date=start_date,
+                            end_date=end_date,
+                            status="pending" if action == "partial_approve" else "active"
+                        )
+                        
+                        db.session.add(new_lease)
+                        db.session.commit()
+                        
+                        # Generate the lease agreement PDF
+                        from utils.pdf_generator import generate_lease_agreement
+                        filename = generate_lease_agreement(student, room, new_lease)
+                        new_lease.pdf_file = filename
+                        
+                        # If fully approved, also mark the room as unavailable and assign to student
+                        if action == "approve":
+                            room.is_available = False
+                            student.room_number = room.room_number
+                            new_lease.status = "fully_signed"  # Admin automatically signs
+                            
+                            # Generate invoice as well since it's fully approved
+                            from utils.pdf_generator import generate_invoice
+                            invoice_filename = generate_invoice(student, room, new_lease)
+                            new_lease.invoice_file = invoice_filename
+                            new_lease.payment_verified = True
+                        
+                        db.session.commit()
+                        
+                        if action == "partial_approve":
+                            student.status = "partial_approved"
+                
             db.session.commit()
 
             # Send SMS notification
@@ -339,9 +386,9 @@ def register_routes(app):
             if action == "hold":
                 message = "Your application is on hold. Please check your email for required documents."
             elif action == "partial_approve":
-                message = "Your application has been partially approved. Please sign your lease agreement to proceed."
-                student.status = "partial_approved"
-                db.session.commit()
+                message = "Your application has been partially approved. A lease agreement has been generated for you to sign in your dashboard."
+            elif action == "approve":
+                message = "Your application has been approved! A lease agreement and invoice have been generated and are available in your dashboard."
 
             try:
                 from utils.sms import send_application_status

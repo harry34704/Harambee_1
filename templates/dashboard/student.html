@@ -1,229 +1,241 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="container py-4">
-    <h1 class="mb-4">Student Dashboard</h1>
+<div class="container mt-5">
+    <h2>Welcome, {{ student.name }}</h2>
 
-    <div class="row">
-        <!-- Student Profile -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">My Profile</h5>
-                </div>
-                <div class="card-body">
-                    <h5>{{ student.name }}</h5>
-                    <p><strong>Email:</strong> {{ current_user.email }}</p>
-                    <p><strong>Phone:</strong> {{ student.phone }}</p>
-
-                    {% if student.room_number %}
-                    <div class="alert alert-success">
-                        <h6 class="mb-1">Room Assignment</h6>
-                        <p class="mb-0">You are assigned to Room {{ student.room_number }}</p>
-                    </div>
-                    {% endif %}
-
-                    <div class="mt-3">
-                        <h6>Application Status</h6>
-                        {% if student.status == "pending" %}
-                        <div class="alert alert-warning">
-                            Your application is pending review by an administrator.
-                        </div>
-                        {% elif student.status == "approved" %}
-                        <div class="alert alert-success">
-                            Your application has been approved!
-                        </div>
-                        {% elif student.status == "rejected" %}
-                        <div class="alert alert-danger">
-                            Your application has been rejected. Please contact administration.
-                        </div>
-                        {% else %}
-                        <div class="mt-3">
-                            {% if not student.institution or not student.campus or not student.course or not student.year_of_study %}
-                            <a href="{{ url_for('academic_info') }}" class="btn btn-primary">Complete Academic Information</a>
-                            {% else %}
-                            <a href="{{ url_for('apply') }}" class="btn btn-primary">Continue Application</a>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+    {% if student.status == 'approved' %}
+        <div class="alert alert-success">
+            Your application has been approved!
         </div>
 
-        <!-- Lease Agreements -->
-        <div class="col-md-8 mb-4">
-            <div class="card shadow h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">My Lease Agreements</h5>
+        {% if student.room_number %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Your Room</h4>
                 </div>
                 <div class="card-body">
-                    {% set leases = student.lease_agreements %}
-                    {% if leases %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Room</th>
-                                        <th>Period</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for lease in leases %}
-                                    <tr>
-                                        <td>{{ lease.room_number }}</td>
-                                        <td>{{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</td>
-                                        <td>
-                                            {% if lease.status == "pending" %}
-                                            <span class="badge bg-secondary">Pending</span>
-                                            {% elif lease.status == "signed_by_student" %}
-                                            <span class="badge bg-warning">Awaiting Admin Signature</span>
-                                            {% elif lease.status == "fully_signed" %}
-                                            <span class="badge bg-info">Fully Signed</span>
-                                            {% elif lease.status == "payment_pending" %}
-                                            <span class="badge bg-warning">Payment Pending</span>
-                                            {% elif lease.status == "active" %}
-                                            <span class="badge bg-success">Active</span>
-                                            {% elif lease.status == "completed" %}
-                                            <span class="badge bg-secondary">Completed</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if lease.status == "pending" %}
-                                            <a href="{{ url_for('sign_lease', lease_id=lease.id) }}" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-signature"></i> Sign Lease
-                                            </a>
-                                            {% elif lease.status == "fully_signed" %}
-                                            <div class="btn-group">
-                                                <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-download"></i> Download
-                                                </a>
-                                                <a href="{{ url_for('upload_payment_proof', lease_id=lease.id) }}" class="btn btn-sm btn-success">
-                                                    <i class="fas fa-money-bill"></i> Upload Payment
-                                                </a>
-                                            </div>
-                                            {% elif lease.status == "payment_pending" %}
-                                            <span class="text-muted">Payment verification in progress</span>
-                                            {% elif lease.status in ["active", "completed"] and lease.invoice_file %}
-                                            <a href="{{ url_for('download_invoice', lease_id=lease.id) }}" class="btn btn-sm btn-success">
-                                                <i class="fas fa-file-invoice"></i> Invoice
-                                            </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info">
-                            You don't have any lease agreements yet. Browse available accommodations and book a room.
-                        </div>
-                        <a href="{{ url_for('accommodation') }}" class="btn btn-primary">
-                            <i class="fas fa-building"></i> Browse Accommodations
-                        </a>
-                    {% endif %}
+                    <p>Room Number: {{ student.room_number }}</p>
+                    <!-- Add more room details here -->
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Maintenance Requests -->
-    {% if student.room_number %}
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Maintenance Requests</h5>
-                    <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#maintenanceModal">
-                        <i class="fas fa-plus"></i> New Request
-                    </button>
+            <!-- Lease Agreements -->
+            {% if student.lease_agreements %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Lease Agreement & Invoice</h4>
                 </div>
                 <div class="card-body">
-                    {% set maintenance_requests = student.maintenance_requests %}
-                    {% if maintenance_requests %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for request in maintenance_requests %}
-                                    <tr>
-                                        <td>{{ request.created_at.strftime('%Y-%m-%d') }}</td>
-                                        <td>{{ request.description }}</td>
-                                        <td>
-                                            {% if request.status == "pending" %}
-                                            <span class="badge bg-warning">Pending</span>
-                                            {% elif request.status == "in_progress" %}
-                                            <span class="badge bg-primary">In Progress</span>
-                                            {% elif request.status == "completed" %}
-                                            <span class="badge bg-success">Completed</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p>No maintenance requests submitted yet.</p>
-                    {% endif %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Room</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th>Documents</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lease in student.lease_agreements %}
+                            <tr>
+                                <td>{{ lease.room_number }}</td>
+                                <td>{{ lease.start_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ lease.end_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {% if lease.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif lease.status == 'signed_by_student' %}
+                                        <span class="badge bg-info">Awaiting Admin Signature</span>
+                                    {% elif lease.status == 'fully_signed' %}
+                                        <span class="badge bg-success">Fully Signed</span>
+                                    {% elif lease.status == 'payment_pending' %}
+                                        <span class="badge bg-warning">Payment Pending</span>
+                                    {% elif lease.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ lease.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if lease.pdf_file %}
+                                    <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-file-pdf"></i> Lease
+                                    </a>
+                                    {% endif %}
+
+                                    {% if lease.invoice_file %}
+                                    <a href="{{ url_for('download_invoice', lease_id=lease.id) }}" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-file-invoice"></i> Invoice
+                                    </a>
+                                    {% endif %}
+
+                                    {% if lease.status == 'pending' %}
+                                    <a href="{{ url_for('sign_lease', lease_id=lease.id) }}" class="btn btn-sm btn-primary">
+                                        Sign Lease
+                                    </a>
+                                    {% elif lease.status == 'fully_signed' and not lease.payment_verified %}
+                                    <a href="{{ url_for('upload_payment_proof', lease_id=lease.id) }}" class="btn btn-sm btn-primary">
+                                        Upload Payment
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
-    </div>
+            {% endif %}
 
-    <!-- Maintenance Request Modal -->
-    <div class="modal fade" id="maintenanceModal" tabindex="-1" aria-labelledby="maintenanceModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="{{ url_for('maintenance_request') }}" method="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="maintenanceModalLabel">New Maintenance Request</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
+            <!-- Maintenance Requests -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Maintenance Request</h4>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('maintenance_request') }}" method="post">
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description of Issue</label>
-                            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                            <label for="description" class="form-label">Describe the issue</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Submit Request</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Request Leave Section -->
-    {% if student.room_number %}
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Request to Leave</h5>
-                </div>
-                <div class="card-body">
-                    <p>If you wish to terminate your accommodation lease, please submit a request below. Note that a 30-day notice period applies.</p>
-                    <form action="{{ url_for('request_leave') }}" method="POST" onsubmit="return confirm('Are you sure you want to request to leave? A 30-day notice period will apply.')">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-door-open"></i> Request to Leave
-                        </button>
                     </form>
                 </div>
             </div>
+
+            <!-- Maintenance Request History -->
+            {% if student.maintenance_requests %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Request History</h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Issue</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in student.maintenance_requests %}
+                                <tr>
+                                    <td>{{ request.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ request.description }}</td>
+                                    <td>
+                                        {% if request.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif request.status == 'in_progress' %}
+                                            <span class="badge bg-primary">In Progress</span>
+                                        {% elif request.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Request Leave -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Request to Leave</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Note: You must provide 30 days notice before vacating your accommodation.</p>
+                    <form action="{{ url_for('request_leave') }}" method="post" onsubmit="return confirm('Are you sure you want to submit a leave request? This will initiate your 30-day notice period.')">
+                        <button type="submit" class="btn btn-danger">Request to Leave</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Your application has been approved, but you haven't been assigned a room yet. Please contact administration.
+            </div>
+        {% endif %}
+    {% elif student.status == 'rejected' %}
+        <div class="alert alert-danger">
+            Your application has been rejected. Please contact administration for more details.
         </div>
-    </div>
+    {% elif student.status == 'hold' %}
+        <div class="alert alert-warning">
+            Your application is on hold. Please contact administration for required documents or information.
+        </div>
+    {% elif student.status == 'pending' %}
+        <div class="alert alert-info">
+            Your application is pending review. We will notify you once a decision has been made.
+        </div>
+    {% elif student.status == 'partial_approved' %}
+        <div class="alert alert-info">
+            Your application has been partially approved. Please review and sign your lease agreement below.
+        </div>
+
+        <!-- Lease Agreements for Partially Approved Students -->
+        {% if student.lease_agreements %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Lease Agreement</h4>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Room</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lease in student.lease_agreements %}
+                        <tr>
+                            <td>{{ lease.room_number }}</td>
+                            <td>{{ lease.start_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ lease.end_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if lease.status == 'pending' %}
+                                    <span class="badge bg-warning">Unsigned</span>
+                                {% elif lease.status == 'signed_by_student' %}
+                                    <span class="badge bg-info">Awaiting Admin Signature</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ lease.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if lease.pdf_file %}
+                                <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-file-pdf"></i> View
+                                </a>
+                                {% endif %}
+
+                                {% if lease.status == 'pending' %}
+                                <a href="{{ url_for('sign_lease', lease_id=lease.id) }}" class="btn btn-sm btn-primary">
+                                    Sign Lease
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            No lease agreement has been generated yet. Please contact administration.
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            Your application status: {{ student.status }}
+        </div>
     {% endif %}
 </div>
 {% endblock %}

@@ -218,6 +218,11 @@ def register_routes(app):
             id_doc = request.files.get("id_document")
             parent_id = request.files.get("parent_id")
             proof_of_registration = request.files.get("proof_of_registration")
+            # Make sure proof of registration is provided
+            if not proof_of_registration or proof_of_registration.filename == '':
+                flash("Proof of registration is required", "error")
+                return redirect(url_for("apply"))
+                
             bank_statement = request.files.get("bank_statement")
 
             # Update student record

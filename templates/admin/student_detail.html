@@ -80,13 +80,12 @@
                                     <td>{{ student.year_of_study }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Selected Accommodation</th>
+                                    <th>Preferred Accommodation</th>
                                     <td>
                                         {% if student.preferred_accommodation %}
-                                            <strong class="text-primary">{{ student.preferred_accommodation.room_type }} - Room {{ student.preferred_accommodation.room_number }}</strong>
-                                            <div class="small text-muted">Price: R{{ student.preferred_accommodation.price }}</div>
+                                            {{ student.preferred_accommodation.room_type }} - Room {{ student.preferred_accommodation.room_number }}
                                         {% else %}
-                                            <span class="text-danger">Not specified</span>
+                                            Not specified
                                         {% endif %}
                                     </td>
                                 </tr>

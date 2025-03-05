@@ -202,12 +202,6 @@ def register_routes(app):
             course = request.form.get("course")
             year_of_study = request.form.get("year_of_study")
             accommodation_preference = request.form.get("accommodation_preference")
-            
-            # Validate accommodation selection
-            if not accommodation_preference:
-                flash("You must select an accommodation option", "error")
-                return redirect(url_for("apply"))
-                
             guardian_name = request.form.get("guardian_name")
             guardian_phone = request.form.get("guardian_phone")
             guardian_id_number = request.form.get("guardian_id_number")
@@ -218,11 +212,6 @@ def register_routes(app):
             id_doc = request.files.get("id_document")
             parent_id = request.files.get("parent_id")
             proof_of_registration = request.files.get("proof_of_registration")
-            # Make sure proof of registration is provided
-            if not proof_of_registration or proof_of_registration.filename == '':
-                flash("Proof of registration is required", "error")
-                return redirect(url_for("apply"))
-                
             bank_statement = request.files.get("bank_statement")
 
             # Update student record

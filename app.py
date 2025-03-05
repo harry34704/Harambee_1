@@ -216,6 +216,13 @@ def register_routes(app):
 
             # Update student record
             student = Student.query.filter_by(user_id=current_user.id).first()
+
+            # Validate accommodation preference
+            if not accommodation_preference:
+                flash("Please select your preferred accommodation", "error")
+                accommodations = Accommodation.query.filter_by(is_available=True).all()
+                return render_template("apply.html", accommodations=accommodations)
+                
             student.institution = institution
             student.campus = campus
             student.course = course

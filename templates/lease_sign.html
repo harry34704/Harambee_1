@@ -15,6 +15,15 @@
                         <p><strong>Room:</strong> {{ lease.room_number }}</p>
                         <p><strong>Period:</strong> {{ lease.start_date.strftime('%Y-%m-%d') }} to {{ lease.end_date.strftime('%Y-%m-%d') }}</p>
                         <p><strong>Monthly Rent:</strong> R{{ room.price }}</p>
+                        
+                        {% if student.guardian_name %}
+                        <hr>
+                        <h6>Guardian Information:</h6>
+                        <p><strong>Name:</strong> {{ student.guardian_name }}</p>
+                        <p><strong>ID Number:</strong> {{ student.guardian_id_number or 'Not provided' }}</p>
+                        <p><strong>Address:</strong> {{ student.guardian_street_address or 'Not provided' }}, {{ student.guardian_city or 'Not provided' }}</p>
+                        <p><strong>Phone:</strong> {{ student.guardian_phone }}</p>
+                        {% endif %}
                     </div>
 
                     <h5 class="mt-4 mb-3">Terms and Conditions</h5>

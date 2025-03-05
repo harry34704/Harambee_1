@@ -33,6 +33,15 @@ def generate_lease_agreement(student, room, lease):
         pdf.cell(140, 8, student.guardian_name, 0, 1)
         pdf.cell(50, 8, 'Guardian Phone:', 0, 0)
         pdf.cell(140, 8, student.guardian_phone, 0, 1)
+        if student.guardian_id_number:
+            pdf.cell(50, 8, 'Guardian ID Number:', 0, 0)
+            pdf.cell(140, 8, student.guardian_id_number, 0, 1)
+        if student.guardian_street_address:
+            pdf.cell(50, 8, 'Guardian Address:', 0, 0)
+            pdf.cell(140, 8, student.guardian_street_address, 0, 1)
+        if student.guardian_city:
+            pdf.cell(50, 8, 'Guardian City:', 0, 0)
+            pdf.cell(140, 8, student.guardian_city, 0, 1)
     
     # Room info
     pdf.cell(50, 8, 'Room Number:', 0, 0)

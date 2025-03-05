@@ -17,6 +17,9 @@ class Student(db.Model):
     phone = db.Column(db.String(20))
     guardian_name = db.Column(db.String(100))
     guardian_phone = db.Column(db.String(20))
+    guardian_id_number = db.Column(db.String(50))
+    guardian_street_address = db.Column(db.String(255))
+    guardian_city = db.Column(db.String(100))
     room_number = db.Column(db.String(10))
     status = db.Column(db.String(20), default="pending")  # pending, approved, rejected
     id_document = db.Column(db.String(255))

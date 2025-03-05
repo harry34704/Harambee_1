@@ -192,6 +192,9 @@ def register_routes(app):
             # Get form data
             guardian_name = request.form.get("guardian_name")
             guardian_phone = request.form.get("guardian_phone")
+            guardian_id_number = request.form.get("guardian_id_number")
+            guardian_street_address = request.form.get("guardian_street_address")
+            guardian_city = request.form.get("guardian_city")
 
             # Get uploaded files
             id_doc = request.files.get("id_document")
@@ -204,6 +207,9 @@ def register_routes(app):
             student = Student.query.filter_by(user_id=current_user.id).first()
             student.guardian_name = guardian_name
             student.guardian_phone = guardian_phone
+            student.guardian_id_number = guardian_id_number
+            student.guardian_street_address = guardian_street_address
+            student.guardian_city = guardian_city
             student.status = "pending"
 
             # Save uploaded files
@@ -252,7 +258,7 @@ def register_routes(app):
         student = Student.query.get_or_404(student_id)
         action = request.form.get("action")
 
-        if action in ["approve", "reject", "hold"]:
+        if action in ["approve", "reject", "hold", "partial_approve"]:
             student.status = action
             db.session.commit()
 
@@ -260,6 +266,10 @@ def register_routes(app):
             message = f"Your application has been {action}ed."
             if action == "hold":
                 message = "Your application is on hold. Please check your email for required documents."
+            elif action == "partial_approve":
+                message = "Your application has been partially approved. Please sign your lease agreement to proceed."
+                student.status = "partial_approved"
+                db.session.commit()
 
             try:
                 from utils.sms import send_application_status

@@ -1,7 +1,3 @@
-
-[env]
-REPLIT_DISABLE_PACKAGE_LAYER = "1"
-
 modules = ["web", "python-3.11", "nodejs-20"]
 run = "python app.py"
 

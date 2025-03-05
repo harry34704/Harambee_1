@@ -4,6 +4,6 @@ from main import app as flask_app
 
 app = flask_app
 
-# For Vercel serverless function
+# Handle Vercel serverless function requests
 def handler(request, context):
-    return app(request.environ, lambda status, headers: [status, headers])
+    return app

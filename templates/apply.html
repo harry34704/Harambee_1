@@ -39,15 +39,16 @@
                             </select>
                         </div>
 
-                        <h4 class="mb-4">Accommodation Preference</h4>
+                        <h4 class="mb-4 text-primary">Accommodation Selection</h4>
                         <div class="mb-3">
-                            <label for="accommodation_preference" class="form-label">Select Preferred Accommodation</label>
-                            <select class="form-select" id="accommodation_preference" name="accommodation_preference" required>
-                                <option value="">Select Accommodation</option>
+                            <label for="accommodation_preference" class="form-label fw-bold">Select Your Accommodation *</label>
+                            <select class="form-select form-select-lg" id="accommodation_preference" name="accommodation_preference" required>
+                                <option value="">Please select an accommodation option</option>
                                 {% for room in accommodations %}
                                 <option value="{{ room.id }}">{{ room.room_type }} - Room {{ room.room_number }} (R{{ room.price }})</option>
                                 {% endfor %}
                             </select>
+                            <div class="form-text">Your application is for this specific accommodation. Room allocation is subject to availability.</div>
                         </div>
 
                         <h4 class="mb-4">Guardian Information</h4>

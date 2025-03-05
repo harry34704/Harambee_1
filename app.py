@@ -202,6 +202,12 @@ def register_routes(app):
             course = request.form.get("course")
             year_of_study = request.form.get("year_of_study")
             accommodation_preference = request.form.get("accommodation_preference")
+            
+            # Validate accommodation selection
+            if not accommodation_preference:
+                flash("You must select an accommodation option", "error")
+                return redirect(url_for("apply"))
+                
             guardian_name = request.form.get("guardian_name")
             guardian_phone = request.form.get("guardian_phone")
             guardian_id_number = request.form.get("guardian_id_number")

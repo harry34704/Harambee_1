@@ -4,3 +4,6 @@
 /instance
 /uploads
 /migrations
+*.pyc
+.env
+.env.*

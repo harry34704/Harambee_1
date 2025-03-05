@@ -47,3 +47,4 @@ static/attached_assets/
 
 # Logs
 *.log
+.vercel

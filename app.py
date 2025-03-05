@@ -150,7 +150,7 @@ def register_routes(app):
             db.session.commit()
 
             login_user(user)
-            return redirect(url_for("apply")) # Redirect to application form after basic registration
+            return redirect(url_for("academic_info")) # Redirect to academic info page after basic registration
 
         return render_template("auth/register.html")
 
@@ -190,17 +190,62 @@ def register_routes(app):
     def contact():
         return render_template("contact.html")
 
+    @app.route("/academic_info", methods=["GET", "POST"])
+    @login_required
+    def academic_info():
+        from models import Student
+        
+        # Get current student's academic info if it exists
+        student = Student.query.filter_by(user_id=current_user.id).first()
+        
+        # If the student already has academic info, pre-populate the form
+        if request.method == "GET" and student:
+            return render_template(
+                "academic_info.html",
+                student=student
+            )
+            
+        return render_template("academic_info.html")
+    
+    @app.route("/save_academic_info", methods=["POST"])
+    @login_required
+    def save_academic_info():
+        from models import Student
+        
+        # Get form data
+        institution = request.form.get("institution")
+        if institution == "Other":
+            institution = request.form.get("other_institution")
+        campus = request.form.get("campus")
+        course = request.form.get("course")
+        year_of_study = request.form.get("year_of_study")
+        
+        # Update student record
+        student = Student.query.filter_by(user_id=current_user.id).first()
+        student.institution = institution
+        student.campus = campus
+        student.course = course
+        student.year_of_study = year_of_study
+        
+        db.session.commit()
+        flash("Academic information saved successfully!", "success")
+        return redirect(url_for("apply"))
+    
     @app.route("/apply", methods=["GET", "POST"])
     @login_required
     def apply():
         from models import Accommodation, Student
         
+        # Get current student
+        student = Student.query.filter_by(user_id=current_user.id).first()
+        
+        # Check if student has completed academic information
+        if not student.institution or not student.campus or not student.course or not student.year_of_study:
+            flash("Please complete your academic information first", "warning")
+            return redirect(url_for("academic_info"))
+        
         if request.method == "POST":
-            # Get form data
-            institution = request.form.get("institution")
-            campus = request.form.get("campus")
-            course = request.form.get("course")
-            year_of_study = request.form.get("year_of_study")
+            # Academic info already saved, no need to collect again
             accommodation_preference = request.form.get("accommodation_preference")
             guardian_name = request.form.get("guardian_name")
             guardian_phone = request.form.get("guardian_phone")
@@ -262,7 +307,8 @@ def register_routes(app):
 
         # Get all available accommodations for the dropdown
         accommodations = Accommodation.query.filter_by(is_available=True).all()
-        return render_template("apply.html", accommodations=accommodations)
+        student = Student.query.filter_by(user_id=current_user.id).first()
+        return render_template("apply.html", accommodations=accommodations, student=student)
 
     @app.route("/admin/applications")
     @login_required

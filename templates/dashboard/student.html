@@ -37,6 +37,14 @@
                         <div class="alert alert-danger">
                             Your application has been rejected. Please contact administration.
                         </div>
+                        {% else %}
+                        <div class="mt-3">
+                            {% if not student.institution or not student.campus or not student.course or not student.year_of_study %}
+                            <a href="{{ url_for('academic_info') }}" class="btn btn-primary">Complete Academic Information</a>
+                            {% else %}
+                            <a href="{{ url_for('apply') }}" class="btn btn-primary">Continue Application</a>
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </div>
                 </div>

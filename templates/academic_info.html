@@ -1,0 +1,84 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Academic Information</h2>
+                    <p class="text-muted text-center mb-4">Please provide your academic details below</p>
+                    
+                    <form method="POST" action="{{ url_for('save_academic_info') }}">
+                        <div class="mb-3">
+                            <label for="institution" class="form-label">Institution <span class="text-danger">*</span></label>
+                            <select class="form-select" id="institution" name="institution" required>
+                                <option value="">Select Institution</option>
+                                <option value="Highlands College">Highlands College</option>
+                                <option value="University of Cape Town">University of Cape Town</option>
+                                <option value="University of Johannesburg">University of Johannesburg</option>
+                                <option value="University of Pretoria">University of Pretoria</option>
+                                <option value="University of the Witwatersrand">University of the Witwatersrand</option>
+                                <option value="Stellenbosch University">Stellenbosch University</option>
+                                <option value="Other">Other Institution</option>
+                            </select>
+                        </div>
+                        
+                        <div id="otherInstitutionField" class="mb-3 d-none">
+                            <label for="other_institution" class="form-label">Specify Institution <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="other_institution" name="other_institution">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="campus" class="form-label">Campus <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="campus" name="campus" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="course" class="form-label">Course/Program <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="course" name="course" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="year_of_study" class="form-label">Year of Study <span class="text-danger">*</span></label>
+                            <select class="form-select" id="year_of_study" name="year_of_study" required>
+                                <option value="">Select Year</option>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                                <option value="5th Year">5th Year</option>
+                                <option value="Postgraduate">Postgraduate</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Save and Continue</button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const institutionSelect = document.getElementById('institution');
+        const otherInstitutionField = document.getElementById('otherInstitutionField');
+        const otherInstitutionInput = document.getElementById('other_institution');
+        
+        institutionSelect.addEventListener('change', function() {
+            if (this.value === 'Other') {
+                otherInstitutionField.classList.remove('d-none');
+                otherInstitutionInput.setAttribute('required', '');
+            } else {
+                otherInstitutionField.classList.add('d-none');
+                otherInstitutionInput.removeAttribute('required');
+            }
+        });
+    });
+</script>
+{% endblock %}

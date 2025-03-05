@@ -11,32 +11,11 @@
                     <form method="POST" enctype="multipart/form-data">
                         <h4 class="mb-4">Academic Information</h4>
                         <div class="mb-3">
-                            <label for="institution" class="form-label">Institution</label>
-                            <select class="form-select" id="institution" name="institution" required>
-                                <option value="">Select Institution</option>
-                                <option value="Highlands College">Highlands College</option>
-                                <option value="Other Institution">Other Institution</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="campus" class="form-label">Campus</label>
-                            <input type="text" class="form-control" id="campus" name="campus" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="course" class="form-label">Course</label>
-                            <input type="text" class="form-control" id="course" name="course" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="year_of_study" class="form-label">Year of Study</label>
-                            <select class="form-select" id="year_of_study" name="year_of_study" required>
-                                <option value="">Select Year</option>
-                                <option value="1st Year">1st Year</option>
-                                <option value="2nd Year">2nd Year</option>
-                                <option value="3rd Year">3rd Year</option>
-                                <option value="4th Year">4th Year</option>
-                                <option value="5th Year">5th Year</option>
-                                <option value="Postgraduate">Postgraduate</option>
-                            </select>
+                            <p><strong>Institution:</strong> {{ student.institution }}</p>
+                            <p><strong>Campus:</strong> {{ student.campus }}</p>
+                            <p><strong>Course:</strong> {{ student.course }}</p>
+                            <p><strong>Year of Study:</strong> {{ student.year_of_study }}</p>
+                            <a href="{{ url_for('academic_info') }}" class="btn btn-sm btn-outline-primary">Edit Academic Information</a>
                         </div>
 
                         <h4 class="mb-4">Accommodation Preference</h4>

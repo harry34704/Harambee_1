@@ -1,3 +1,4 @@
+
 # Python
 __pycache__/
 *.py[cod]
@@ -20,31 +21,26 @@ var/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-ENV/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
 # Flask
 instance/
 .webassets-cache
 
-# SQLite database
-*.db
-*.sqlite
+# Virtual Environment
+venv/
+ENV/
 
-# Uploaded files
-uploads/
-static/attached_assets/
-
-# Environment variables
+# Environment Variables
 .env
+.env.*
 
-# Logs
-*.log
+# SQLite database files
+*.db
+*.sqlite3
+
+# Vercel
 .vercel
+
+# Misc
+.DS_Store
+node_modules/
+uploads/

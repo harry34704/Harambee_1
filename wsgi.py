@@ -1,15 +1,12 @@
 
-import os
+from flask import Flask
 from main import app
 
-# Set Flask to production mode
-app.debug = False
-app.config['ENV'] = 'production'
-
-# Vercel uses this as the serverless function entry point
+# For Vercel serverless function
 def handler(request, context):
-    return app(request, context)
+    # The request object is a WSGI object
+    return app
 
 # For local development
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=5000)

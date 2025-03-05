@@ -41,6 +41,38 @@
                         <p>A 30-day written notice is required for termination of this agreement. Early termination may result in forfeiture of the security deposit.</p>
                     </div>
 
+                    {% if current_user.is_admin and lease.status == "signed_by_student" %}
+                    <div class="alert alert-warning">
+                        <p>This lease has been signed by the student and is awaiting your signature as an administrator.</p>
+                        <p><strong>Student Signature:</strong> {{ lease.student_signature }}</p>
+                        <p><strong>Date Signed:</strong> {{ lease.student_signature_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% if lease.guardian_signature %}
+                        <p><strong>Guardian Signature:</strong> {{ lease.guardian_signature }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('admin_sign_lease', lease_id=lease.id) }}">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agree" name="agree" required>
+                                <label class="form-check-label" for="agree">
+                                    I, as an authorized administrator, have read and approve this lease agreement
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="signature" class="form-label">Administrator Signature (Type your full name)</label>
+                            <input type="text" class="form-control" id="signature" name="signature" required>
+                            <small class="text-muted">By typing your name above, you are signing this agreement electronically as an administrator.</small>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Sign Lease Agreement</button>
+                        </div>
+                    </form>
+                    
+                    {% elif not current_user.is_admin %}
                     <form method="POST" action="{{ url_for('sign_lease', lease_id=lease.id) }}">
                         <div class="mb-3">
                             <div class="form-check">
@@ -52,15 +84,36 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label for="signature" class="form-label">Electronic Signature (Type your full name)</label>
+                            <label for="signature" class="form-label">Student Signature (Type your full name)</label>
                             <input type="text" class="form-control" id="signature" name="signature" required>
                             <small class="text-muted">By typing your name above, you are signing this agreement electronically.</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="guardian_signature" class="form-label">Guardian Signature (Optional - Type guardian's full name)</label>
+                            <input type="text" class="form-control" id="guardian_signature" name="guardian_signature">
+                            <small class="text-muted">If a guardian is co-signing this agreement, please have them type their name above.</small>
                         </div>
                         
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg">Sign Lease Agreement</button>
                         </div>
                     </form>
+                    {% elif lease.status == "fully_signed" %}
+                    <div class="alert alert-success">
+                        <p>This lease has been fully signed and is now in effect.</p>
+                        <p><strong>Student Signature:</strong> {{ lease.student_signature }}</p>
+                        <p><strong>Student Signature Date:</strong> {{ lease.student_signature_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% if lease.guardian_signature %}
+                        <p><strong>Guardian Signature:</strong> {{ lease.guardian_signature }}</p>
+                        {% endif %}
+                        <p><strong>Admin Signature:</strong> {{ lease.admin_signature }}</p>
+                        <p><strong>Admin Signature Date:</strong> {{ lease.admin_signature_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('download_lease', lease_id=lease.id) }}" class="btn btn-primary">Download Signed Agreement</a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

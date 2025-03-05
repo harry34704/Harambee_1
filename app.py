@@ -395,24 +395,80 @@ def register_routes(app):
         
         if request.method == "POST":
             signature = request.form.get("signature")
+            guardian_signature = request.form.get("guardian_signature")
             agree = request.form.get("agree")
             
             if agree and signature:
-                lease.status = "signed"
-                lease.signature_date = datetime.utcnow()
+                lease.status = "signed_by_student"
+                lease.student_signature = signature
+                if guardian_signature:
+                    lease.guardian_signature = guardian_signature
+                lease.student_signature_date = datetime.utcnow()
                 lease.signature_ip = request.remote_addr
-                
-                # Generate the PDF lease agreement
-                from utils.pdf_generator import generate_lease_agreement
-                filename = generate_lease_agreement(student, room, lease)
-                lease.pdf_file = filename
                 
                 db.session.commit()
                 
-                flash("Lease agreement signed successfully! Please proceed to payment.", "success")
-                return redirect(url_for("upload_payment_proof", lease_id=lease.id))
+                # Notify admin about pending signature
+                flash("Lease agreement signed successfully! The administrator will review and sign the agreement.", "success")
+                return redirect(url_for("dashboard"))
             else:
                 flash("You must agree to the terms and provide your signature.", "danger")
+        
+        return render_template("lease_sign.html", lease=lease, student=student, room=room)
+        
+    @app.route("/admin/lease/<int:lease_id>/sign", methods=["POST"])
+    @login_required
+    def admin_sign_lease(lease_id):
+        if not current_user.is_admin:
+            flash("Access denied.", "danger")
+            return redirect(url_for("dashboard"))
+            
+        from models import LeaseAgreement, Student, Accommodation
+        lease = LeaseAgreement.query.get_or_404(lease_id)
+        student = Student.query.get(lease.student_id)
+        room = Accommodation.query.filter_by(room_number=lease.room_number).first()
+        
+        signature = request.form.get("signature")
+        agree = request.form.get("agree")
+        
+        if agree and signature:
+            lease.status = "fully_signed"
+            lease.admin_signature = signature
+            lease.admin_signature_date = datetime.utcnow()
+            
+            # Generate the PDF lease agreement with both signatures
+            from utils.pdf_generator import generate_lease_agreement
+            filename = generate_lease_agreement(student, room, lease)
+            lease.pdf_file = filename
+            
+            db.session.commit()
+            
+            flash("Lease agreement fully signed! Student can now proceed to payment.", "success")
+            
+            # Send notification to student
+            try:
+                from utils.sms import send_sms_notification
+                message = f"Hello {student.name}, your lease agreement for Room {room.room_number} has been signed by the administrator. You can now proceed to payment."
+                send_sms_notification(student.phone, message)
+            except Exception as e:
+                app.logger.error(f"SMS sending failed: {str(e)}")
+                
+            return redirect(url_for("admin_leases"))
+        else:
+            flash("You must agree to the terms and provide your signature.", "danger")
+            return redirect(url_for("admin_sign_lease", lease_id=lease.id))
+            
+    @app.route("/admin/lease/<int:lease_id>/view", methods=["GET"])
+    @login_required
+    def admin_view_lease(lease_id):
+        if not current_user.is_admin:
+            flash("Access denied.", "danger")
+            return redirect(url_for("dashboard"))
+            
+        from models import LeaseAgreement, Student, Accommodation
+        lease = LeaseAgreement.query.get_or_404(lease_id)
+        student = Student.query.get(lease.student_id)
+        room = Accommodation.query.filter_by(room_number=lease.room_number).first()
         
         return render_template("lease_sign.html", lease=lease, student=student, room=room)
 

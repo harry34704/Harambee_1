@@ -1,87 +1,180 @@
+
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5">
-    <h2 class="mb-4">Application Management</h2>
-    
+<div class="container-fluid py-4">
     <div class="row">
-        <div class="col-md-12">
-            {% for application in applications %}
-            <div class="card mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Pending Applications</h5>
+                </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h5>{{ application.name }}</h5>
-                            <p class="mb-1"><i class="fas fa-envelope me-2"></i>{{ application.user.email }}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>{{ application.phone }}</p>
-                            <p class="mb-1"><i class="fas fa-user me-2"></i>Guardian: {{ application.guardian_name }}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>Guardian Phone: {{ application.guardian_phone }}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>Documents</h5>
-                            <div class="list-group">
-                                {% if application.id_document %}
-                                <a href="{{ url_for('view_document', student_id=application.id, doc_type='id') }}" 
-                                   class="list-group-item list-group-item-action" target="_blank">
-                                    <i class="fas fa-id-card me-2"></i>ID Document
-                                </a>
-                                {% endif %}
-                                
-                                {% if application.parent_id %}
-                                <a href="{{ url_for('view_document', student_id=application.id, doc_type='parent_id') }}" 
-                                   class="list-group-item list-group-item-action" target="_blank">
-                                    <i class="fas fa-id-card me-2"></i>Guardian ID
-                                </a>
-                                {% endif %}
-                                
-                                {% if application.payslip %}
-                                <a href="{{ url_for('view_document', student_id=application.id, doc_type='payslip') }}" 
-                                   class="list-group-item list-group-item-action" target="_blank">
-                                    <i class="fas fa-file-invoice-dollar me-2"></i>Payslip
-                                </a>
-                                {% endif %}
-                                
-                                {% if application.bank_statement %}
-                                <a href="{{ url_for('view_document', student_id=application.id, doc_type='bank_statement') }}" 
-                                   class="list-group-item list-group-item-action" target="_blank">
-                                    <i class="fas fa-file-invoice me-2"></i>Bank Statement
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>Actions</h5>
-                            <form method="POST" action="{{ url_for('process_application', student_id=application.id) }}" class="mb-2">
-                                <input type="hidden" name="action" value="approve">
-                                <button type="submit" class="btn btn-success w-100 mb-2">
-                                    <i class="fas fa-check me-2"></i>Approve
-                                </button>
-                            </form>
-                            
-                            <form method="POST" action="{{ url_for('process_application', student_id=application.id) }}" class="mb-2">
-                                <input type="hidden" name="action" value="hold">
-                                <button type="submit" class="btn btn-warning w-100 mb-2">
-                                    <i class="fas fa-pause me-2"></i>Put On Hold
-                                </button>
-                            </form>
-                            
-                            <form method="POST" action="{{ url_for('process_application', student_id=application.id) }}">
-                                <input type="hidden" name="action" value="reject">
-                                <button type="submit" class="btn btn-danger w-100">
-                                    <i class="fas fa-times me-2"></i>Reject
-                                </button>
-                            </form>
-                        </div>
+                    {% if applications %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Guardian</th>
+                                    <th>Documents</th>
+                                    <th>Applied On</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in applications %}
+                                <tr>
+                                    <td>{{ student.id }}</td>
+                                    <td>{{ student.name }}</td>
+                                    <td>{{ student.user.email }}</td>
+                                    <td>{{ student.phone }}</td>
+                                    <td>{{ student.guardian_name }} ({{ student.guardian_phone }})</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            {% if student.id_document %}
+                                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='id') }}" class="btn btn-sm btn-outline-primary" target="_blank">ID</a>
+                                            {% endif %}
+                                            
+                                            {% if student.parent_id %}
+                                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='parent_id') }}" class="btn btn-sm btn-outline-primary" target="_blank">Parent ID</a>
+                                            {% endif %}
+                                            
+                                            {% if student.payslip %}
+                                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='payslip') }}" class="btn btn-sm btn-outline-primary" target="_blank">Payslip</a>
+                                            {% endif %}
+                                            
+                                            {% if student.bank_statement %}
+                                            <a href="{{ url_for('view_document', student_id=student.id, doc_type='bank_statement') }}" class="btn btn-sm btn-outline-primary" target="_blank">Bank Statement</a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>{{ student.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <form action="{{ url_for('process_application', student_id=student.id) }}" method="POST" class="d-inline">
+                                            <div class="input-group">
+                                                <select name="action" class="form-select form-select-sm" required>
+                                                    <option value="">Select action</option>
+                                                    <option value="approve">Approve</option>
+                                                    <option value="reject">Reject</option>
+                                                    <option value="hold">Hold (Missing Documents)</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+                                            </div>
+                                        </form>
+                                        
+                                        <button type="button" class="btn btn-sm btn-info mt-1" data-bs-toggle="modal" data-bs-target="#documentChecklistModal{{ student.id }}">
+                                            <i class="fas fa-tasks"></i> Document Checklist
+                                        </button>
+                                        
+                                        <!-- Document Checklist Modal -->
+                                        <div class="modal fade" id="documentChecklistModal{{ student.id }}" tabindex="-1" aria-labelledby="documentChecklistModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="documentChecklistModalLabel">Document Verification for {{ student.name }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form id="docVerificationForm{{ student.id }}">
+                                                            <div class="mb-3">
+                                                                <h6>Required Documents:</h6>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" id="idVerified{{ student.id }}" {% if student.id_document %}checked{% endif %}>
+                                                                    <label class="form-check-label" for="idVerified{{ student.id }}">
+                                                                        ID Document
+                                                                    </label>
+                                                                    {% if student.id_document %}
+                                                                    <a href="{{ url_for('view_document', student_id=student.id, doc_type='id') }}" class="ms-2" target="_blank">View</a>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" id="parentIdVerified{{ student.id }}" {% if student.parent_id %}checked{% endif %}>
+                                                                    <label class="form-check-label" for="parentIdVerified{{ student.id }}">
+                                                                        Parent/Guardian ID
+                                                                    </label>
+                                                                    {% if student.parent_id %}
+                                                                    <a href="{{ url_for('view_document', student_id=student.id, doc_type='parent_id') }}" class="ms-2" target="_blank">View</a>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" id="payslipVerified{{ student.id }}" {% if student.payslip %}checked{% endif %}>
+                                                                    <label class="form-check-label" for="payslipVerified{{ student.id }}">
+                                                                        Payslip/Income Proof
+                                                                    </label>
+                                                                    {% if student.payslip %}
+                                                                    <a href="{{ url_for('view_document', student_id=student.id, doc_type='payslip') }}" class="ms-2" target="_blank">View</a>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" id="bankStatementVerified{{ student.id }}" {% if student.bank_statement %}checked{% endif %}>
+                                                                    <label class="form-check-label" for="bankStatementVerified{{ student.id }}">
+                                                                        Bank Statement
+                                                                    </label>
+                                                                    {% if student.bank_statement %}
+                                                                    <a href="{{ url_for('view_document', student_id=student.id, doc_type='bank_statement') }}" class="ms-2" target="_blank">View</a>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="mb-3">
+                                                                <label for="docVerificationNotes{{ student.id }}" class="form-label">Notes:</label>
+                                                                <textarea class="form-control" id="docVerificationNotes{{ student.id }}" rows="3" placeholder="Add notes about document verification..."></textarea>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="button" class="btn btn-success" onclick="approveApplication({{ student.id }})">Approve</button>
+                                                        <button type="button" class="btn btn-danger" onclick="rejectApplication({{ student.id }})">Reject</button>
+                                                        <button type="button" class="btn btn-warning" onclick="holdApplication({{ student.id }})">Hold</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        No pending applications at this time.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-            {% else %}
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
-                No pending applications at the moment.
-            </div>
-            {% endfor %}
         </div>
     </div>
 </div>
+
+<script>
+function approveApplication(studentId) {
+    // Add your client-side validation logic here
+    const form = document.querySelector(`form[action*="${studentId}"]`);
+    const select = form.querySelector('select[name="action"]');
+    select.value = 'approve';
+    form.submit();
+}
+
+function rejectApplication(studentId) {
+    // Add your client-side validation logic here
+    const form = document.querySelector(`form[action*="${studentId}"]`);
+    const select = form.querySelector('select[name="action"]');
+    select.value = 'reject';
+    form.submit();
+}
+
+function holdApplication(studentId) {
+    // Add your client-side validation logic here
+    const form = document.querySelector(`form[action*="${studentId}"]`);
+    const select = form.querySelector('select[name="action"]');
+    select.value = 'hold';
+    form.submit();
+}
+</script>
 {% endblock %}

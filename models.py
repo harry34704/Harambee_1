@@ -49,11 +49,15 @@ class LeaseAgreement(db.Model):
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     pdf_file = db.Column(db.String(255))
-    status = db.Column(db.String(20), default="pending")  # pending, signed, payment_pending, payment_verified, active, completed
+    status = db.Column(db.String(20), default="pending")  # pending, signed_by_student, awaiting_admin_signature, fully_signed, payment_pending, payment_verified, active, completed
     payment_proof = db.Column(db.String(255))
     payment_verified = db.Column(db.Boolean, default=False)
     invoice_file = db.Column(db.String(255))
-    signature_date = db.Column(db.DateTime)
+    student_signature = db.Column(db.String(255))
+    guardian_signature = db.Column(db.String(255))
+    admin_signature = db.Column(db.String(255))
+    student_signature_date = db.Column(db.DateTime)
+    admin_signature_date = db.Column(db.DateTime)
     signature_ip = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     student = db.relationship('Student', backref='lease_agreements')

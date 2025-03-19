@@ -48,7 +48,7 @@ function previewDocument(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-
+git
 function selectRoom(element) {
     if (element.classList.contains('room-unavailable')) {
         return;

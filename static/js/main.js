@@ -48,7 +48,7 @@ function previewDocument(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-git
+
 function selectRoom(element) {
     if (element.classList.contains('room-unavailable')) {
         return;
@@ -67,7 +67,7 @@ function selectRoom(element) {
     document.getElementById('accommodation_preference').value = roomId;
 
     // Handle PI asset attachment
-    fetch(`/static/attached_assets/pi/${roomId}`)
+    fetch(`/static/attached_assets/pi${roomId}.jpg`)
         .then(response => response.json())
         .then(data => {
             if (data.pi_assets) {

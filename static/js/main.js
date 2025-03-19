@@ -49,6 +49,35 @@ function previewDocument(input) {
     }
 }
 
+function selectRoom(element) {
+    if (element.classList.contains('room-unavailable')) {
+        return;
+    }
+    
+    // Remove selected class from all rooms
+    document.querySelectorAll('.room-selectable').forEach(room => {
+        room.classList.remove('room-selected');
+    });
+    
+    // Add selected class to clicked room
+    element.classList.add('room-selected');
+    
+    // Update hidden input
+    const roomId = element.getAttribute('data-room-id');
+    document.getElementById('accommodation_preference').value = roomId;
+
+    // Handle PI asset attachment
+    fetch(`/static/attached_assets/pi/${roomId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.pi_assets) {
+                // Update UI with PI assets if needed
+                console.log('PI assets loaded:', data.pi_assets);
+            }
+        })
+        .catch(error => console.error('Error loading PI assets:', error));
+}
+
 // Handle room booking modal
 const bookingModal = document.getElementById('bookingModal');
 if (bookingModal) {

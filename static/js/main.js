@@ -106,4 +106,14 @@ if (paymentProofInput) {
 document.addEventListener('DOMContentLoaded', function() {
     // Add any initialization code here
     console.log('DOM fully loaded and parsed');
+    
+    // Check application state and redirect if necessary
+    fetch('/api/check_application_state')
+        .then(response => response.json())
+        .then(data => {
+            if (data.incomplete_application) {
+                window.location.href = '/resume_application';
+            }
+        })
+        .catch(error => console.error('Error checking application state:', error));
 });

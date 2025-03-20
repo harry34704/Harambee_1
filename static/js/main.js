@@ -50,21 +50,28 @@ function previewDocument(input) {
 }
 
 function selectRoom(element) {
+    console.log('Selecting room:', element.dataset.roomId);
+    
     if (element.classList.contains('room-unavailable')) {
+        console.log('Room is unavailable');
         return;
     }
     
     // Remove selected class from all rooms
-    document.querySelectorAll('.room-selectable').forEach(room => {
-        room.classList.remove('room-selected');
+    document.querySelectorAll('.room-block').forEach(room => {
+        room.classList.remove('selected');
     });
     
     // Add selected class to clicked room
-    element.classList.add('room-selected');
+    element.classList.add('selected');
     
     // Update hidden input
-    const roomId = element.getAttribute('data-room-id');
-    document.getElementById('accommodation_preference').value = roomId;
+    const roomId = element.dataset.roomId;
+    const preferenceInput = document.getElementById('accommodation_preference');
+    if (preferenceInput) {
+        preferenceInput.value = roomId;
+        console.log('Updated preference to:', roomId);
+    }
 }
 
 // Handle room booking modal
@@ -105,4 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => console.error('Error checking application state:', error));
+    
+    console.log('Checking for room blocks...');
+    const roomBlocks = document.querySelectorAll('.room-block');
+    console.log('Found room blocks:', roomBlocks.length);
 });

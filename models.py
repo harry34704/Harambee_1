@@ -37,6 +37,15 @@ class Student(db.Model):
     user = db.relationship('User', backref='student', uselist=False)
     preferred_accommodation = db.relationship('Accommodation', foreign_keys=[accommodation_preference])
 
+    @staticmethod
+    def get_current_student(user_id):
+        """Get current student with error handling"""
+        try:
+            return Student.query.filter_by(user_id=user_id).first()
+        except Exception as e:
+            app.logger.error(f"Error fetching student: {str(e)}")
+            return None
+
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Updated foreign key reference
@@ -52,6 +61,17 @@ class Accommodation(db.Model):
     is_available = db.Column(db.Boolean, default=True)
     details = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @staticmethod
+    def get_all_accommodations():
+        """Get all available accommodations with error handling"""
+        try:
+            accommodations = Accommodation.query.filter_by(is_available=True).all()
+            app.logger.info(f"Found {len(accommodations)} available accommodations")
+            return accommodations
+        except Exception as e:
+            app.logger.error(f"Error fetching accommodations: {str(e)}")
+            return []
 
 class LeaseAgreement(db.Model):
     id = db.Column(db.Integer, primary_key=True)

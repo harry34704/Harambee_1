@@ -65,17 +65,6 @@ function selectRoom(element) {
     // Update hidden input
     const roomId = element.getAttribute('data-room-id');
     document.getElementById('accommodation_preference').value = roomId;
-
-    // Handle PI asset attachment
-    fetch(`/static/attached_assets/pi${roomId}.jpg`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.pi_assets) {
-                // Update UI with PI assets if needed
-                console.log('PI assets loaded:', data.pi_assets);
-            }
-        })
-        .catch(error => console.error('Error loading PI assets:', error));
 }
 
 // Handle room booking modal

@@ -17,24 +17,18 @@
                             <a href="{{ url_for('academic_info') }}" class="btn btn-sm btn-outline-primary">Edit Academic Information</a>
                         </div>
 
-                        <h4 class="mb-4">Accommodation Selection</h4>
-                        <div class="row mb-4">
+                        <h4>Accommodation Selection</h4>
+                        <div >
                             {% for room in accommodations %}
-                            <div class="col-md-4 mb-3">
-                                <div class="card h-100 {% if room.is_available %}room-selectable{% else %}room-unavailable{% endif %}"
+                            <div class="col-md-2 mb-3">
+                                <div class="room-block {% if room.is_available %}room-selectable{% else %}room-unavailable{% endif %}"
                                      data-room-id="{{ room.id }}" onclick="selectRoom(this)">
-                                    <img src="{{ url_for('static', filename='attached_assets/pi' + room.room_number|string + '.jpg') }}"
-                                         class="card-img-top" alt="Room {{ room.room_number }}"
-                                         style="height: 200px; object-fit: cover;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Room {{ room.room_number }}</h5>
-                                        <p class="card-text">{{ room.room_type }}</p>
-                                        <p class="card-text">R{{ room.price }}/month</p>
-                                        {% if room.is_available %}
-                                        <span class="badge bg-success">Available</span>
-                                        {% else %}
-                                        <span class="badge bg-danger">Occupied</span>
-                                        {% endif %}
+                                     <img src="{{ url_for('static', filename='images/pic' ~ loop.index ~ '.jpg') }}"
+                                     class="img-fluid" alt="Room {{ room.room_number }}"
+                                     style="height: 200px; width: 200px; object-fit: cover;">
+                                    <div class="room-info">
+                                        <h5 class="room-title">Room {{ room.room_number }}</h5>
+                                        <p class="room-price">R{{ room.price }}/month</p>
                                     </div>
                                 </div>
                             </div>
@@ -105,15 +99,44 @@
 
 {% block styles %}
 <style>
-.room-selectable {
+.room-block {
+    position: relative;
+    height: 200px;
+    width: 200px;
     cursor: pointer;
     transition: transform 0.2s;
+    overflow: hidden;
 }
-.room-selectable:hover {
+.room-block:hover {
     transform: scale(1.02);
 }
-.room-selected {
-    border: 3px solid #0d6efd;
+.room-block:hover .room-info {
+    opacity: 1;
+}
+.room-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.room-title {
+    margin: 0;
+    font-size: 1rem;
+}
+.room-price {
+    margin: 0;
+    font-size: 0.9rem;
+}
+.room-selectable {
+    border: 2px solid transparent;
+}
+.room-selectable:hover {
+    border-color: #0d6efd;
 }
 .room-unavailable {
     opacity: 0.7;

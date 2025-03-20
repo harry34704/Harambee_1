@@ -1,4 +1,3 @@
-
 import os
 import shutil
 from flask import Flask, flash, redirect, render_template, request, url_for, send_from_directory
@@ -178,10 +177,6 @@ def register_routes(app):
         rooms = Accommodation.query.all()
         return render_template("accommodation.html", rooms=rooms)
 
-    @app.route("/gallery")
-    def gallery():
-        return render_template("gallery.html")
-
     @app.route("/about")
     def about():
         return render_template("about.html")
@@ -222,10 +217,12 @@ def register_routes(app):
         
         # Update student record
         student = Student.query.filter_by(user_id=current_user.id).first()
-        student.institution = institution
-        student.campus = campus
-        student.course = course
-        student.year_of_study = year_of_study
+        student.institution = request.form.get("institution")
+        student.campus = request.form.get("campus")
+        course = request.form.get("course")
+        course = request.form.get("course")
+        student.course = request.form.get("course")
+        student.year_of_study = request.form.get("year_of_study")
         
         db.session.commit()
         flash("Academic information saved successfully!", "success")
@@ -266,12 +263,12 @@ def register_routes(app):
             if not accommodation_preference:
                 flash("Please select your preferred accommodation", "error")
                 accommodations = Accommodation.query.filter_by(is_available=True).all()
-                return render_template("apply.html", accommodations=accommodations)
+                return render_template("apply.html", accommodations=accommodations, student=student)
                 
-            student.institution = institution
-            student.campus = campus
-            student.course = course
-            student.year_of_study = year_of_study
+            student.institution = request.form.get("institution")
+            student.campus = request.form.get("campus")
+            student.course = request.form.get("course")
+            student.year_of_study = request.form.get("year_of_study")
             student.accommodation_preference = accommodation_preference
             student.guardian_name = guardian_name
             student.guardian_phone = guardian_phone
@@ -851,6 +848,37 @@ def register_routes(app):
             lease.pdf_file,
             as_attachment=True
         )
+
+    @app.route("/resume_application")
+    @login_required
+    def resume_application():
+        from models import Student
+        student = Student.query.filter_by(user_id=current_user.id).first()
+        if student and student.status == "incomplete":
+            return redirect(url_for("apply"))
+        flash("No incomplete application found.", "warning")
+        return redirect(url_for("dashboard"))
+
+    @app.route("/api/check_application_state", methods=["GET"])
+    @login_required
+    def check_application_state():
+        from models import Student
+        student = Student.query.filter_by(user_id=current_user.id).first()
+        if student:
+            return {
+                "status": student.status,
+                "accommodation_preference": student.accommodation_preference,
+                "guardian_name": student.guardian_name,
+                "guardian_phone": student.guardian_phone,
+                "guardian_id_number": student.guardian_id_number,
+                "guardian_street_address": student.guardian_street_address,
+                "guardian_city": student.guardian_city,
+                "id_document": student.id_document,
+                "parent_id": student.parent_id,
+                "proof_of_registration": student.proof_of_registration,
+                "bank_statement": student.bank_statement
+            }, 200
+        return {"error": "Student not found"}, 404
 
     @app.context_processor
     def inject_context():

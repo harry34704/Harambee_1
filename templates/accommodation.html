@@ -4,63 +4,31 @@
 <div class="container py-5">
     <h2 class="text-center mb-5">Our Accommodation Gallery</h2>
 
+    <h4>Accommodation Selection</h4>
     <div class="row">
+        {% for room in accommodations %}
         <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/pic4.jpg') }}" class="card-img-top gallery-img" alt="Bathroom">
-                <div class="card-body">
-                    <h5>Modern Private Bathroom</h5>
-                    <p>Private en-suite bathrooms in all rooms</p>
-                    <span class="badge bg-primary">From R3,500/month</span>
+            <div class="room-block {% if room.is_available %}room-selectable{% else %}room-unavailable{% endif %}"
+                 data-room-id="{{ room.id }}" 
+                 onclick="selectRoom(this)"
+                 id="room-{{ room.id }}">
+                <img src="{{ url_for('static', filename='images/room' ~ room.id ~ '.jpg') }}"
+                     class="img-fluid room-image" 
+                     alt="Room {{ room.room_number }}"
+                     onclick="enlargeImage(this)"
+                     onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                <div class="room-info">
+                    <h5 class="room-title">Room {{ room.room_number }}</h5>
+                    <p class="room-type">{{ room.room_type }}</p>
+                    <p class="room-price">R5500/month</p>
+                    <div class="selection-indicator">
+                        <i class="fas fa-check-circle"></i> Selected
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/pic5.jpg') }}" class="card-img-top gallery-img" alt="Room Image">
-                <div class="card-body">
-                    <h5>Spacious Rooms</h5>
-                    <p>Well-lit, comfortable living spaces</p>
-                    <span class="badge bg-primary">From R4,000/month</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/pic6.jpg') }}" class="card-img-top gallery-img" alt="Common Area">
-                <div class="card-body">
-                    <h5>Common Areas</h5>
-                    <p>Modern shared spaces for socializing</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/pic3.jpg') }}" class="card-img-top gallery-img" alt="Study Area">
-                <div class="card-body">
-                    <h5>Study Areas</h5>
-                    <p>Quiet spaces for focused learning</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/pic1.jpg') }}" class="card-img-top gallery-img" alt="Exterior">
-                <div class="card-body">
-                    <h5>Building Exterior</h5>
-                    <p>Modern accommodation facility</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/pic2.jpg') }}" class="card-img-top gallery-img" alt="Security">
-                <div class="card-body">
-                    <h5>24/7 Security</h5>
-                    <p>Safe and secure accommodation</p>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
+    <button class="btn btn-primary" onclick="applyForAccommodation()">Apply</button>
 </div>
 {% endblock %}

@@ -20,31 +20,26 @@
                         <h4>Accommodation Selection</h4>
                         <div class="row">
                             {% for room in accommodations %}
-                                {% for room in accommodations %}
-                                <div class="col-md-4 mb-4">
-                                    <div class="room-block {% if room.is_available %}room-selectable{% else %}room-unavailable{% endif %}"
-                                         data-room-id="{{ room.id }}" 
-                                         onclick="selectRoom(this)"
-                                         id="room-{{ room.id }}">
-                                        <img src="{{ url_for('static', filename='images/pic1' ~ loop.index ~ '.jpg') }}"
-                                             class="img-fluid" 
-                                             alt="Room {{ room.room_number }}"
-                                             ≈
-                                        <div class="room-info">
-                                            <h5 class="room-title">Room {{ room.room_number }}</h5>
-                                            <p class="room-type">{{ room.room_type }}</p>
-                                            <p class="room-price">R{{ "%.2f"|format(room.price) }}/month</p>
+                            <div class="col-md-4 mb-4">
+                                <div class="room-block {% if room.is_available %}room-selectable{% else %}room-unavailable{% endif %}"
+                                     data-room-id="{{ room.id }}" 
+                                     onclick="selectRoom(this)"
+                                     id="room-{{ room.id }}">
+                                    <img src="{{ url_for('static', filename='images/room' ~ room.id ~ '.jpg') }}"
+                                         class="img-fluid" 
+                                         alt="Room {{ room.room_number }}"
+                                         onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                                    <div class="room-info">
+                                        <h5 class="room-title">Room {{ room.room_number }}</h5>
+                                        <p class="room-type">{{ room.room_type }}</p>
+                                        <p class="room-price">R{{ "%.2f"|format(room.price) }}/month</p>
+                                        <div class="selection-indicator">
+                                            <i class="fas fa-check-circle"></i> Selected
                                         </div>
                                     </div>
                                 </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="col-12">
-                                    <div class="alert alert-info">
-                                        No rooms are currently available. Please check back later.
-                                    </div>
-                                </div>
-                            {% endif %}
+                            </div>
+                            {% endfor %}
                         </div>
                         <input type="hidden" id="accommodation_preference" name="accommodation_preference" required>
 
@@ -154,9 +149,22 @@
     opacity: 0.7;
     cursor: not-allowed;
 }
+.selection-indicator {
+    display: none;
+    text-align: center;
+    padding: 5px;
+    background: rgba(13, 110, 253, 0.8);
+    border-radius: 3px;
+    margin-top: 5px;
+}
+.room-block.selected .selection-indicator {
+    display: block;
+}
+.room-block.selected {
+    border: 2px solid #0d6efd;
+}
 </style>
 {% endblock %}
-
 {% block scripts %}
 <script>
 function selectRoom(element) {
@@ -166,11 +174,11 @@ function selectRoom(element) {
     
     // Remove selection from all rooms
     document.querySelectorAll('.room-block').forEach(room => {
-        room.style.borderColor = 'transparent';
+        room.classList.remove('selected');
     });
     
     // Select the clicked room
-    element.style.borderColor = '#0d6efd';
+    element.classList.add('selected');
     
     // Update the hidden input with the selected room ID
     document.getElementById('accommodation_preference').value = element.dataset.roomId;

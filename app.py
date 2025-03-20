@@ -228,7 +228,7 @@ def register_routes(app):
         flash("Academic information saved successfully!", "success")
         return redirect(url_for("apply"))
     
-    @app.route("/apply", methods=["GET", "POST"])
+    @app.route('/apply', methods=['GET', 'POST'])
     @login_required
     def apply():
         from models import Accommodation, Student
@@ -302,10 +302,46 @@ def register_routes(app):
             flash("Application submitted successfully!", "success")
             return redirect(url_for("dashboard"))
 
-        # Get all available accommodations for the dropdown
-        accommodations = Accommodation.query.filter_by(is_available=True).all()
-        student = Student.query.filter_by(user_id=current_user.id).first()
-        return render_template("apply.html", accommodations=accommodations, student=student)
+        # Sample room data - adjust according to your database structure
+        accommodations = [
+            {
+                'id': 1,
+                'room_number': '101',
+                'room_type': 'Single Room',
+                'price': 3500.00,
+                'is_available': True
+            },
+            {
+                'id': 2,
+                'room_number': '102',
+                'room_type': 'Double Room',
+                'price': 3000.00,
+                'is_available': True
+            },
+            {
+                'id': 3,
+                'room_number': '103',
+                'room_type': 'Single Room Ensuite',
+                'price': 4000.00,
+                'is_available': True
+            },
+            {
+                'id': 4,
+                'room_number': '104',
+                'room_type': 'Double Room',
+                'price': 3000.00,
+                'is_available': True
+            },
+            {
+                'id': 5,
+                'room_number': '105',
+                'room_type': 'Single Room',
+                'price': 3500.00,
+                'is_available': True
+            }
+        ]
+        
+        return render_template('apply.html', accommodations=accommodations, student=student)
 
     @app.route("/admin/applications")
     @login_required

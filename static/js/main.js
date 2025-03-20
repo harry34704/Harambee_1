@@ -98,6 +98,22 @@ if (paymentProofInput) {
     });
 }
 
+function enlargeImage(img) {
+    var enlargedImage = document.createElement('div');
+    enlargedImage.className = 'enlarged-image';
+    enlargedImage.innerHTML = '<img src="' + img.src + '" alt="' + img.alt + '">';
+    document.body.appendChild(enlargedImage);
+    enlargedImage.style.display = 'block';
+    enlargedImage.onclick = function() {
+        document.body.removeChild(enlargedImage);
+    };
+}
+
+function applyForAccommodation() {
+    // Implement the logic to apply for accommodation
+    alert('Application process started.');
+}
+
 // Initialize any other necessary JavaScript functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Add any initialization code here

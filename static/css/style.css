@@ -93,3 +93,55 @@ body {
 .status-rejected {
     background-color: var(--danger);
 }
+
+.room-block {
+    position: relative;
+    cursor: pointer;
+}
+
+.room-image {
+    width: 100%;
+    height: auto;
+    transition: transform 0.2s;
+}
+
+.room-image:hover {
+    transform: scale(1.05);
+}
+
+.room-info {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.selection-indicator {
+    display: none;
+}
+
+.room-selectable .selection-indicator {
+    display: block;
+}
+
+.room-unavailable {
+    opacity: 0.5;
+}
+
+.room-unavailable .selection-indicator {
+    display: none;
+}
+
+.enlarged-image {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    max-width: 90%;
+    max-height: 90%;
+    display: none;
+}
+
+.enlarged-image img {
+    width: 100%;
+    height: auto;
+}

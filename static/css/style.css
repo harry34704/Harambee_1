@@ -15,7 +15,8 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: var(--light-color);
+    background: url("{{ url_for('static', filename='images/student_living_bg.jpg') }}") no-repeat center center fixed;
+    background-size: cover;
     padding-top: 56px;
 }
 

@@ -156,7 +156,7 @@ def register_routes(app):
     @app.route("/dashboard")
     @login_required
     def dashboard():
-        from models import Student, MaintenanceRequest
+        from models import Student, MaintenanceRequest, LeaseAgreement
         if current_user.is_admin:
             registered_students = Student.query.all()
             pending_applications = Student.query.filter_by(status="pending").all()
@@ -169,7 +169,9 @@ def register_routes(app):
             )
         else:
             student = Student.query.filter_by(user_id=current_user.id).first()
-            return render_template("dashboard/student.html", student=student)
+            lease_agreements = LeaseAgreement.query.filter_by(student_id=student.id).all()
+            maintenance_requests = MaintenanceRequest.query.filter_by(student_id=student.id).all()
+            return render_template("dashboard/student.html", student=student, lease_agreements=lease_agreements, maintenance_requests=maintenance_requests)
 
     @app.route("/accommodation")
     def accommodation():

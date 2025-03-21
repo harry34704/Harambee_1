@@ -1,34 +1,264 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5">
-    <h2 class="text-center mb-5">Our Accommodation Gallery</h2>
-
-    <h4>Accommodation Selection</h4>
-    <div class="row">
-        {% for room in accommodations %}
-        <div class="col-md-4 mb-4">
-            <div class="room-block {% if room.is_available %}room-selectable{% else %}room-unavailable{% endif %}"
-                 data-room-id="{{ room.id }}" 
-                 onclick="selectRoom(this)"
-                 id="room-{{ room.id }}">
-                <img src="{{ url_for('static', filename='images/room' ~ room.id ~ '.jpg') }}"
-                     class="img-fluid room-image" 
-                     alt="Room {{ room.room_number }}"
-                     onclick="enlargeImage(this)"
-                     onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
-                <div class="room-info">
-                    <h5 class="room-title">Room {{ room.room_number }}</h5>
-                    <p class="room-type">{{ room.room_type }}</p>
-                    <p class="room-price">R5500/month</p>
-                    <div class="selection-indicator">
-                        <i class="fas fa-check-circle"></i> Selected
-                    </div>
+<!-- Enhanced Page Header with Search -->
+<section class="page-header text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">Our Accommodations</h1>
+                <p class="lead mb-4">Find your perfect space for academic success</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="search-box bg-white p-3 rounded-3 shadow-sm">
+                    <form class="row g-2">
+                        <div class="col-md-4">
+                            <select class="form-select" id="roomType">
+                                <option value="">Room Type</option>
+                                <option value="single">Single Room</option>
+                                <option value="double">Double Room</option>
+                                <option value="suite">Suite</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="priceRange">
+                                <option value="">Price Range</option>
+                                <option value="0-3000">R0 - R3,000</option>
+                                <option value="3001-5000">R3,001 - R5,000</option>
+                                <option value="5001+">R5,001+</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
-    <button class="btn btn-primary" onclick="applyForAccommodation()">Apply</button>
+</section>
+
+<!-- Enhanced Filters with Icons -->
+<section class="py-4 bg-light sticky-top" style="top: 56px; z-index: 1020;">
+    <div class="container">
+        <div class="room-filters d-flex flex-wrap gap-2 justify-content-center">
+            <button class="btn btn-outline-primary active" data-filter="all">
+                <i class="fas fa-th-large me-2"></i>All Rooms
+            </button>
+            <button class="btn btn-outline-primary" data-filter="single">
+                <i class="fas fa-user me-2"></i>Single Rooms
+            </button>
+            <button class="btn btn-outline-primary" data-filter="double">
+                <i class="fas fa-users me-2"></i>Double Rooms
+            </button>
+            <button class="btn btn-outline-primary" data-filter="suite">
+                <i class="fas fa-star me-2"></i>Suites
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Enhanced Rooms Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for i in range(1, 7) %}
+            <div class="col-lg-4 col-md-6">
+                <div class="room-card card h-100">
+                    <div class="room-image position-relative overflow-hidden">
+                        <img src="{{ url_for('static', filename='images/room' ~ i ~ '.jpg') }}" 
+                             class="card-img-top" alt="Room {{ i }}">
+                        <div class="room-overlay">
+                            <button class="btn btn-light btn-sm" onclick="openGallery({{ i }})">
+                                <i class="fas fa-expand-alt"></i> View Gallery
+                            </button>
+                        </div>
+                        <div class="room-tag position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-primary">Available</span>
+                        </div>
+                        {% if i % 2 == 0 %}
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge bg-danger">Popular</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">Premium Room {{ i }}</h5>
+                            <div class="room-rating">
+                                <i class="fas fa-star text-warning"></i>
+                                <span class="ms-1">4.{{ i }}</span>
+                            </div>
+                        </div>
+                        <div class="room-features mb-3">
+                            <span class="badge bg-light text-dark me-2" data-bs-toggle="tooltip" title="Comfortable single bed">
+                                <i class="fas fa-bed me-1"></i> Single Bed
+                            </span>
+                            <span class="badge bg-light text-dark me-2" data-bs-toggle="tooltip" title="High-speed WiFi">
+                                <i class="fas fa-wifi me-1"></i> WiFi
+                            </span>
+                            <span class="badge bg-light text-dark" data-bs-toggle="tooltip" title="Private bathroom">
+                                <i class="fas fa-bath me-1"></i> En-suite
+                            </span>
+                        </div>
+                        <p class="card-text">Modern, fully furnished room with all amenities for comfortable student living.</p>
+                        <div class="room-amenities mb-3">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Study Desk</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Built-in Wardrobe</li>
+                                <li><i class="fas fa-check text-success me-2"></i>24/7 Security</li>
+                            </ul>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="price">
+                                <span class="h4 text-primary mb-0">R5,000</span>
+                                <span class="text-muted">/month</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="bookRoom('{{ url_for('book_room', room_id=i) }}')">
+                                <i class="fas fa-bookmark me-2"></i>Book Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Room Gallery Modal -->
+<div class="modal fade" id="galleryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Room Gallery</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="roomGallery" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <!-- Gallery images will be loaded dynamically -->
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#roomGallery" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#roomGallery" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header {
+    background: linear-gradient(rgba(13,110,253,0.9), rgba(13,110,253,0.9)), url("{{ url_for('static', filename='images/room1.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    margin-top: 56px;
+}
+
+.room-filters {
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.room-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+}
+
+.room-image img {
+    height: 250px;
+    object-fit: cover;
+}
+
+.room-features .badge {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.room-amenities li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.room-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.room-image:hover .room-overlay {
+    opacity: 1;
+}
+
+.search-box {
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.9);
+}
+
+.room-rating {
+    background: rgba(255,193,7,0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+}
+
+.sticky-top {
+    transition: all 0.3s ease;
+}
+
+.sticky-top.scrolled {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Enhanced card animations */
+.room-card {
+    transform-origin: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.room-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Modal enhancements */
+.modal-content {
+    border: none;
+    border-radius: 15px;
+}
+
+.carousel-item img {
+    border-radius: 10px;
+    height: 400px;
+    object-fit: cover;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/form-validation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/accommodation.js') }}"></script>
 {% endblock %}

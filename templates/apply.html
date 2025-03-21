@@ -4,98 +4,79 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h2 class="text-center mb-4">Student Accommodation Application</h2>
-                    <form method="POST" enctype="multipart/form-data">
-                        <h4 class="mb-4">Academic Information</h4>
-                        <div class="mb-3">
-                            <p><strong>Institution:</strong> {{ student.institution }}</p>
-                            <p><strong>Campus:</strong> {{ student.campus }}</p>
-                            <p><strong>Course:</strong> {{ student.course }}</p>
-                            <p><strong>Year of Study:</strong> {{ student.year_of_study }}</p>
-                            <a href="{{ url_for('academic_info') }}" class="btn btn-sm btn-outline-primary">Edit Academic Information</a>
+                    <form method="POST" enctype="multipart/form-data" id="applicationForm">
+                        <!-- Personal Information Section -->
+                        <div class="mb-4">
+                            <h4>Personal Information</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_number" class="form-label">ID Number</label>
+                                    <input type="text" class="form-control" id="id_number" name="id_number" required>
+                                </div>
+                            </div>
                         </div>
 
-                        <h4>Accommodation Selection</h4>
-                        <div class="row">
-                            {% for room in accommodations %}
-                            <div class="col-md-4 mb-4">
-                                <div class="room-block {% if room.is_available %}room-selectable{% else %}room-unavailable{% endif %}"
-                                     data-room-id="{{ room.id }}" 
-                                     onclick="selectRoom(this)"
-                                     id="room-{{ room.id }}">
-                                    <img src="{{ url_for('static', filename='images/room' ~ room.id ~ '.jpg') }}"
-                                         class="img-fluid" 
-                                         alt="Room {{ room.room_number }}"
-                                         onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
-                                    <div class="room-info">
-                                        <h5 class="room-title">Room {{ room.room_number }}</h5>
-                                        <p class="room-type">{{ room.room_type }}</p>
-                                        <p class="room-price">R{{ "%.2f"|format(room.price) }}/month</p>
-                                        <div class="selection-indicator">
-                                            <i class="fas fa-check-circle"></i> Selected
+                        <!-- Room Selection Section -->
+                        <div class="mb-4">
+                            <h4>Select Your Room</h4>
+                            <div class="row g-3">
+                                {% for i in range(1, 7) %}
+                                <div class="col-md-4">
+                                    <div class="room-block card h-100" data-room-id="{{ i }}" onclick="selectRoom(this)">
+                                        <img src="{{ url_for('static', filename='images/room' ~ i ~ '.jpg') }}" 
+                                             class="card-img-top" alt="Room {{ i }}">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Room {{ i }}</h5>
+                                            <p class="card-text">Comfortable and fully furnished room.</p>
+                                            <div class="selection-indicator">Selected</div>
                                         </div>
                                     </div>
                                 </div>
+                                {% endfor %}
                             </div>
-                            {% endfor %}
-                        </div>
-                        <input type="hidden" id="accommodation_preference" name="accommodation_preference" required>
-
-                        <h4 class="mb-4">Guardian Information</h4>
-                        <div class="mb-3">
-                            <label for="guardian_name" class="form-label">Guardian Full Name</label>
-                            <input type="text" class="form-control" id="guardian_name" name="guardian_name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="guardian_phone" class="form-label">Guardian Phone</label>
-                            <input type="text" class="form-control" id="guardian_phone" name="guardian_phone" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="guardian_id_number" class="form-label">Guardian ID Number</label>
-                            <input type="text" class="form-control" id="guardian_id_number" name="guardian_id_number" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="guardian_street_address" class="form-label">Guardian Street Address</label>
-                            <input type="text" class="form-control" id="guardian_street_address" name="guardian_street_address" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="guardian_city" class="form-label">Guardian City</label>
-                            <input type="text" class="form-control" id="guardian_city" name="guardian_city" required>
+                            <input type="hidden" id="accommodation_preference" name="accommodation_preference" required>
                         </div>
 
+                        <!-- Document Upload Section -->
                         <div class="mb-4">
-                            <h5>Required Documents</h5>
-                            <p class="text-muted">Please upload clear, legible copies of the following documents:</p>
+                            <h4>Upload Required Documents</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_document" class="form-label">ID Document</label>
+                                    <input type="file" class="form-control" id="id_document" name="id_document" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="parent_id" class="form-label">Parent/Guardian ID</label>
+                                    <input type="file" class="form-control" id="parent_id" name="parent_id" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="proof_of_registration" class="form-label">Proof of Registration</label>
+                                    <input type="file" class="form-control" id="proof_of_registration" name="proof_of_registration" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="bank_statement" class="form-label">Bank Statement</label>
+                                    <input type="file" class="form-control" id="bank_statement" name="bank_statement" required>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="id_document" class="form-label">Your ID Document</label>
-                            <input type="file" class="form-control" id="id_document" name="id_document" accept=".pdf,.jpg,.jpeg,.png" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="parent_id" class="form-label">Guardian's ID Document</label>
-                            <input type="file" class="form-control" id="parent_id" name="parent_id" accept=".pdf,.jpg,.jpeg,.png" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="proof_of_registration" class="form-label">Proof of Registration</label>
-                            <input type="file" class="form-control" id="proof_of_registration" name="proof_of_registration" accept=".pdf,.jpg,.jpeg,.png" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="bank_statement" class="form-label">Guardian's Bank Statement (Last 3 months)</label>
-                            <input type="file" class="form-control" id="bank_statement" name="bank_statement" accept=".pdf,.jpg,.jpeg,.png" required>
-                        </div>
-
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Your application will be reviewed by our admin team. You will be notified once a decision has been made.
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">Submit Application</button>
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Submit Application</button>
                     </form>
                 </div>
             </div>
@@ -104,51 +85,23 @@
 </div>
 {% endblock %}
 
-{% block styles %}
+{% block extra_css %}
 <style>
 .room-block {
     position: relative;
-    height: 200px;
-    width: 200px;
     cursor: pointer;
     transition: transform 0.2s;
     overflow: hidden;
 }
+
 .room-block:hover {
     transform: scale(1.02);
 }
-.room-block:hover .room-info {
-    opacity: 1;
+
+.room-block.selected {
+    border: 2px solid #0d6efd;
 }
-.room-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-.room-title {
-    margin: 0;
-    font-size: 1rem;
-}
-.room-price {
-    margin: 0;
-    font-size: 0.9rem;
-}
-.room-selectable {
-    border: 2px solid transparent;
-}
-.room-selectable:hover {
-    border-color: #0d6efd;
-}
-.room-unavailable {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
+
 .selection-indicator {
     display: none;
     text-align: center;
@@ -157,29 +110,24 @@
     border-radius: 3px;
     margin-top: 5px;
 }
+
 .room-block.selected .selection-indicator {
     display: block;
 }
-.room-block.selected {
-    border: 2px solid #0d6efd;
-}
 </style>
 {% endblock %}
-{% block scripts %}
+
+{% block extra_js %}
 <script>
 function selectRoom(element) {
-    if (!element.classList.contains('room-selectable')) {
-        return;
-    }
-    
     // Remove selection from all rooms
     document.querySelectorAll('.room-block').forEach(room => {
         room.classList.remove('selected');
     });
-    
+
     // Select the clicked room
     element.classList.add('selected');
-    
+
     // Update the hidden input with the selected room ID
     document.getElementById('accommodation_preference').value = element.dataset.roomId;
 }

@@ -132,4 +132,56 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Checking for room blocks...');
     const roomBlocks = document.querySelectorAll('.room-block');
     console.log('Found room blocks:', roomBlocks.length);
+
+    // Initialize Bootstrap tooltips
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+
+    // Handle flash message auto-dismiss
+    const flashMessages = document.querySelectorAll('.alert');
+    flashMessages.forEach(message => {
+        setTimeout(() => {
+            const alert = bootstrap.Alert.getInstance(message);
+            if (alert) {
+                alert.close();
+            }
+        }, 5000);
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Add loading indicator to forms
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            }
+        });
+    });
+
+    // Responsive image handling
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', function() {
+            this.src = '/static/images/placeholder.png';
+        });
+    });
+});
+
+// Add page transition effects
+window.addEventListener('beforeunload', function() {
+    document.body.classList.add('page-transition');
 });

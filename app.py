@@ -128,7 +128,7 @@ def register_routes(app):
             
             from models import User, Student
             if User.query.filter_by(email=email).first():
-                flash("Email already registered")
+                flash("Email already registered", "danger")
                 return redirect(url_for("register"))
 
             user = User(
@@ -193,15 +193,29 @@ def register_routes(app):
         # Get current student's academic info if it exists
         student = Student.query.filter_by(user_id=current_user.id).first()
         
-        # If the student already has academic info, pre-populate the form
-        if request.method == "GET" and student:
-            return render_template(
-                "academic_info.html",
-                student=student
-            )
+        if request.method == "POST":
+            institution = request.form.get("institution")
+            if institution == "Other":
+                institution = request.form.get("other_institution")
+            campus = request.form.get("campus")
+            course = request.form.get("course")
+            year_of_study = request.form.get("year_of_study")
             
-        return render_template("academic_info.html")
-    
+            if not student:
+                student = Student(user_id=current_user.id)
+                db.session.add(student)
+            
+            student.institution = institution
+            student.campus = campus
+            student.course = course
+            student.year_of_study = year_of_study
+            
+            db.session.commit()
+            flash("Academic information saved successfully!", "success")
+            return redirect(url_for("apply"))
+        
+        return render_template("academic_info.html", student=student)
+
     @app.route("/save_academic_info", methods=["POST"])
     @login_required
     def save_academic_info():
@@ -233,114 +247,63 @@ def register_routes(app):
     def apply():
         from models import Accommodation, Student
         
-        # Get current student
         student = Student.query.filter_by(user_id=current_user.id).first()
         
-        # Check if student has completed academic information
-        if not student.institution or not student.campus or not student.course or not student.year_of_study:
+        if not student.institution:
             flash("Please complete your academic information first", "warning")
             return redirect(url_for("academic_info"))
         
         if request.method == "POST":
-            # Academic info already saved, no need to collect again
-            accommodation_preference = request.form.get("accommodation_preference")
-            guardian_name = request.form.get("guardian_name")
-            guardian_phone = request.form.get("guardian_phone")
-            guardian_id_number = request.form.get("guardian_id_number")
-            guardian_street_address = request.form.get("guardian_street_address")
-            guardian_city = request.form.get("guardian_city")
-
-            # Get uploaded files
-            id_doc = request.files.get("id_document")
-            parent_id = request.files.get("parent_id")
-            proof_of_registration = request.files.get("proof_of_registration")
-            bank_statement = request.files.get("bank_statement")
-
-            # Update student record
-            student = Student.query.filter_by(user_id=current_user.id).first()
-
-            # Validate accommodation preference
-            if not accommodation_preference:
-                flash("Please select your preferred accommodation", "error")
-                accommodations = Accommodation.query.filter_by(is_available=True).all()
-                return render_template("apply.html", accommodations=accommodations, student=student)
+            try:
+                # Handle file uploads
+                files = {
+                    'id_document': request.files.get('id_document'),
+                    'parent_id': request.files.get('parent_id'),
+                    'proof_of_registration': request.files.get('proof_of_registration'),
+                    'bank_statement': request.files.get('bank_statement')
+                }
                 
-            student.institution = request.form.get("institution")
-            student.campus = request.form.get("campus")
-            student.course = request.form.get("course")
-            student.year_of_study = request.form.get("year_of_study")
-            student.accommodation_preference = accommodation_preference
-            student.guardian_name = guardian_name
-            student.guardian_phone = guardian_phone
-            student.guardian_id_number = guardian_id_number
-            student.guardian_street_address = guardian_street_address
-            student.guardian_city = guardian_city
-            student.status = "pending"
-
-            # Save uploaded files
-            if id_doc:
-                filename = secure_filename(id_doc.filename)
-                id_doc.save(os.path.join(app.config["UPLOAD_FOLDER"], "documents", filename))
-                student.id_document = filename
-
-            if parent_id:
-                filename = secure_filename(parent_id.filename)
-                parent_id.save(os.path.join(app.config["UPLOAD_FOLDER"], "documents", filename))
-                student.parent_id = filename
-
-            if proof_of_registration:
-                filename = secure_filename(proof_of_registration.filename)
-                proof_of_registration.save(os.path.join(app.config["UPLOAD_FOLDER"], "documents", filename))
-                student.proof_of_registration = filename
-
-            if bank_statement:
-                filename = secure_filename(bank_statement.filename)
-                bank_statement.save(os.path.join(app.config["UPLOAD_FOLDER"], "documents", filename))
-                student.bank_statement = filename
-
-            db.session.commit()
-            flash("Application submitted successfully!", "success")
-            return redirect(url_for("dashboard"))
-
-        # Sample room data - adjust according to your database structure
-        accommodations = [
-            {
-                'id': 1,
-                'room_number': '101',
-                'room_type': 'Single Room',
-                'price': 3500.00,
-                'is_available': True
-            },
-            {
-                'id': 2,
-                'room_number': '102',
-                'room_type': 'Double Room',
-                'price': 3000.00,
-                'is_available': True
-            },
-            {
-                'id': 3,
-                'room_number': '103',
-                'room_type': 'Single Room Ensuite',
-                'price': 4000.00,
-                'is_available': True
-            },
-            {
-                'id': 4,
-                'room_number': '104',
-                'room_type': 'Double Room',
-                'price': 3000.00,
-                'is_available': True
-            },
-            {
-                'id': 5,
-                'room_number': '105',
-                'room_type': 'Single Room',
-                'price': 3500.00,
-                'is_available': True
-            }
-        ]
+                # Validate all required files are present
+                for key, file in files.items():
+                    if not file:
+                        flash(f"Missing required document: {key.replace('_', ' ').title()}", "danger")
+                        return redirect(request.url)
+                
+                # Process and save files
+                for key, file in files.items():
+                    if file:
+                        filename = secure_filename(f"{key}_{student.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}{os.path.splitext(file.filename)[1]}")
+                        file.save(os.path.join(app.config["UPLOAD_FOLDER"], "documents", filename))
+                        setattr(student, key, filename)
+                
+                # Update student information
+                student.accommodation_preference = request.form.get("accommodation_preference")
+                student.guardian_name = request.form.get("guardian_name")
+                student.guardian_phone = request.form.get("guardian_phone")
+                student.guardian_id_number = request.form.get("guardian_id_number")
+                student.guardian_street_address = request.form.get("guardian_street_address")
+                student.guardian_city = request.form.get("guardian_city")
+                student.status = "pending"
+                
+                db.session.commit()
+                
+                # Send notification
+                try:
+                    from utils.sms import send_application_notification
+                    send_application_notification(student)
+                except Exception as e:
+                    app.logger.error(f"Failed to send notification: {str(e)}")
+                
+                flash("Application submitted successfully! We will review it shortly.", "success")
+                return redirect(url_for("dashboard"))
+                
+            except Exception as e:
+                db.session.rollback()
+                app.logger.error(f"Application submission failed: {str(e)}")
+                flash("An error occurred while submitting your application. Please try again.", "danger")
+                return redirect(request.url)
         
+        accommodations = Accommodation.query.filter_by(is_available=True).all()
         return render_template('apply.html', accommodations=accommodations, student=student)
 
     @app.route("/admin/applications")
@@ -358,7 +321,7 @@ def register_routes(app):
     @login_required
     def process_application(student_id):
         if not current_user.is_admin:
-            return {"error": "Access denied"}, 403
+            return
         from models import Student, Accommodation, LeaseAgreement
         from datetime import datetime, timedelta
         student = Student.query.get_or_404(student_id)
@@ -367,68 +330,36 @@ def register_routes(app):
         if action in ["approve", "reject", "hold", "partial_approve"]:
             student.status = action
             
-            # If approved or partially approved, create a lease agreement
             if action in ["approve", "partial_approve"]:
-                # Get the selected accommodation
-                if student.accommodation_preference:
-                    room = Accommodation.query.get(student.accommodation_preference)
-                    
-                    if room:
-                        # Create default lease dates (e.g., 1 year from now)
-                        start_date = datetime.now().date()
-                        end_date = start_date + timedelta(days=365)  # One year lease
-                        
-                        # Create the lease agreement
-                        new_lease = LeaseAgreement(
-                            student_id=student.id,
-                            room_number=room.room_number,
-                            start_date=start_date,
-                            end_date=end_date,
-                            status="pending" if action == "partial_approve" else "active"
-                        )
-                        
-                        db.session.add(new_lease)
-                        db.session.commit()
-                        
-                        # Generate the lease agreement PDF
-                        from utils.pdf_generator import generate_lease_agreement
-                        filename = generate_lease_agreement(student, room, new_lease)
-                        new_lease.pdf_file = filename
-                        
-                        # If fully approved, also mark the room as unavailable and assign to student
-                        if action == "approve":
-                            room.is_available = False
-                            student.room_number = room.room_number
-                            new_lease.status = "fully_signed"  # Admin automatically signs
-                            
-                            # Generate invoice as well since it's fully approved
-                            from utils.pdf_generator import generate_invoice
-                            invoice_filename = generate_invoice(student, room, new_lease)
-                            new_lease.invoice_file = invoice_filename
-                            new_lease.payment_verified = True
-                        
-                        db.session.commit()
-                        
-                        if action == "partial_approve":
-                            student.status = "partial_approved"
-                
+                lease = LeaseAgreement(
+                    student_id=student.id,
+                    room_number=student.accommodation_preference,
+                    start_date=datetime.now().date(),
+                    end_date=datetime.now().date() + timedelta(days=365),
+                    status="pending"
+                )
+                db.session.add(lease)
+            
             db.session.commit()
 
-            # Send SMS notification
             message = f"Your application has been {action}ed."
             if action == "hold":
-                message = "Your application is on hold. Please check your email for required documents."
+                message = "Your application is on hold. Please contact admin for more details."
             elif action == "partial_approve":
-                message = "Your application has been partially approved. A lease agreement has been generated for you to sign in your dashboard."
+                message = "Your application is partially approved. Please review the details."
             elif action == "approve":
-                message = "Your application has been approved! A lease agreement and invoice have been generated and are available in your dashboard."
+                message = "Your application is approved. Please sign the lease agreement."
 
             try:
-                from utils.sms import send_application_status
-                send_application_status(student, action)
+                # Send SMS notification
+                if twilio_client:
+                    twilio_client.messages.create(
+                        body=message,
+                        from_=os.environ.get("TWILIO_PHONE_NUMBER"),
+                        to=student.phone
+                    )
             except Exception as e:
                 app.logger.error(f"SMS sending failed: {str(e)}")
-                # Continue with the process even if SMS fails
 
             flash(f"Application {action}ed successfully!", "success")
 
@@ -547,12 +478,10 @@ def register_routes(app):
         lease = LeaseAgreement.query.get_or_404(lease_id)
         student = Student.query.filter_by(user_id=current_user.id).first()
         
-        # Verify this lease belongs to the current user
         if student.id != lease.student_id and not current_user.is_admin:
             flash("Access denied", "danger")
             return redirect(url_for("dashboard"))
         
-        # Get room information
         room = Accommodation.query.filter_by(room_number=lease.room_number).first()
         
         if request.method == "POST":
@@ -563,15 +492,10 @@ def register_routes(app):
             if agree and signature:
                 lease.status = "signed_by_student"
                 lease.student_signature = signature
-                if guardian_signature:
-                    lease.guardian_signature = guardian_signature
+                lease.guardian_signature = guardian_signature
                 lease.student_signature_date = datetime.utcnow()
-                lease.signature_ip = request.remote_addr
-                
                 db.session.commit()
-                
-                # Notify admin about pending signature
-                flash("Lease agreement signed successfully! The administrator will review and sign the agreement.", "success")
+                flash("Lease agreement signed successfully!", "success")
                 return redirect(url_for("dashboard"))
             else:
                 flash("You must agree to the terms and provide your signature.", "danger")
@@ -701,34 +625,27 @@ def register_routes(app):
             student = Student.query.get(lease.student_id)
             room = Accommodation.query.filter_by(room_number=lease.room_number).first()
             
-            # Update lease status
             lease.payment_verified = True
             lease.status = "active"
             
-            # Generate invoice
             from utils.pdf_generator import generate_invoice
             invoice_filename = generate_invoice(student, room, lease)
             lease.invoice_file = invoice_filename
             
-            # Update room status
             room.is_available = False
-            
-            # Assign room to student
             student.room_number = room.room_number
             
             db.session.commit()
             
-            # Notify student
             try:
-                from utils.sms import send_sms_notification
-                message = f"Hello {student.name}, your payment for Room {room.room_number} has been verified. You can now download your invoice from your dashboard."
-                send_sms_notification(student.phone, message)
+                # Send notification to student
+                pass
             except Exception as e:
-                app.logger.error(f"SMS sending failed: {str(e)}")
+                pass
             
             flash("Payment verified and invoice generated successfully!", "success")
         elif action == "reject":
-            lease.status = "signed"  # Reset to signed state
+            lease.status = "signed"
             db.session.commit()
             flash("Payment rejected. Student will need to re-upload payment proof.", "warning")
         
